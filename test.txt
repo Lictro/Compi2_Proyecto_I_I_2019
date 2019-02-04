@@ -1,0 +1,3 @@
+bool break continue class else extends false for if int new null return
+rot true void while boor llama 123453 0x123456789abcdefABCDEFx
+"assde###111((()))"
