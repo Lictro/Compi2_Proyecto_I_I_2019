@@ -1,40 +1,24 @@
-#ifndef _EXPR_LEXER_H
-#define _EXPR_LEXER_H
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>
-#include "tokens.h"
+#include <stdio.h>
+#include <string.h>
 
-using namespace std;
+static const size_t SIZE = 1024;
+#define ERROR -1
+#define EOFI 0
 
-class ExprLexer {
-public:
-    ExprLexer(std::ifstream &in): in(in) {lexeme="";}
-    ~ExprLexer(){}
+struct input_t {
+    char *buf;
+    char *lim;
+    char *cur;
+    char *tok;
+    bool eof;
 
-    Token getNextToken();
-    int getLineNo() { return lineno; }
-    std::string getText() { return text; }
-    char getChar(){
-        char ch = in.peek();
-        if(ch != -1)
-            lexeme.push_back(ch);
-        //cout<<(int)ch<<endl;
-        return ch;
-    }
-    string getLexeme(){
-        return lexeme;
-    }
+    input_t();
 
-private:
-    int lineno;
-    ifstream &in;
-    string text;
-    streampos mar;
-    string lexeme;
-    bool flag;
-    int state;
-
+    bool fill(size_t need);
 };
-#endif
+
+int lex(input_t & in);

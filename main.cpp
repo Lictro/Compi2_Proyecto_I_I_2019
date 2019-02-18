@@ -1,32 +1,33 @@
 #include <iostream>
+#include <sstream>
+#include <string.h>
 #include <stdio.h>
-#include <string>
-#include <fstream>
-#include <vector>
+#include <stdlib.h>
 #include "lexer.h"
 
-int main(int argc, char *argv[])
+void *ParseAlloc(void *(*mallocProc)(size_t));
+void Parse(void *yyp,int yymajor,int yyminor);
+void ParseFree( void *p, void (*freeProc)(void *));
+
+extern std::istream *in;
+extern std::string text;
+
+void parse(input_t in) {
+    void *parser = ParseAlloc(malloc);
+    int tk = lex(in);
+    while (tk != EOFI) {
+        Parse(parser, tk, 0);
+        tk = lex(in);
+    }
+    Parse(parser, 0, 0);
+    ParseFree(parser, free);
+}
+
+int main()
 {
-    if (argc == 1)
-    {
-        cerr << "Usage " << argv[0] << " <input file> Directive-List" << endl;
-        return 1;
-    }
-    ifstream in(argv[1], ios::in);
+    input_t in;
 
-    if (!in.is_open())
-    {
-        cerr << "Cannot open output file '" << argv[1] << "'" << endl;
-        return 1;
-    }
-    /*string code;
-    in >> code;
-    std::istringstream ins;
+    parse(in);
 
-    ins.str(code);*/
-    ExprLexer lexer(in);
-    while(lexer.getNextToken()!=Token::Eof){
-        printf("%s\n", lexer.getLexeme().c_str());
-    }
     return 0;
 }
