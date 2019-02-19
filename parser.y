@@ -44,7 +44,7 @@ params ::= params COMMA type ID. {}
 params ::= type ID. {}
 params ::= . {}
 
-block ::= OPENCUR statements CLOSECUR. {}
+block ::= OPENCUR field_decl statements CLOSECUR. {}
 
 statements ::= statements statement. {}
 statements ::= statement.
@@ -96,13 +96,20 @@ condition ::= logic_expr. {}
 condition ::= logic_expr AND logic_expr. {}
 condition ::= logic_expr OR logic_expr. {}
 
-logic_expr ::= aritexpr MAYOR aritexpr. {}
-logic_expr ::= aritexpr MENOR aritexpr. {}
-logic_expr ::= aritexpr MAYORIGUAL aritexpr. {}
-logic_expr ::= aritexpr MENORIGUAL aritexpr. {}
-logic_expr ::= aritexpr IGUAL aritexpr. {}
-logic_expr ::= aritexpr DISTINTO aritexpr. {}
-logic_expr ::= aritexpr. {}
+logic_expr ::= bitwise MAYOR bitwise. {}
+logic_expr ::= bitwise MENOR bitwise. {}
+logic_expr ::= bitwise MAYORIGUAL bitwise. {}
+logic_expr ::= bitwise MENORIGUAL bitwise. {}
+logic_expr ::= bitwise IGUAL bitwise. {}
+logic_expr ::= bitwise DISTINTO bitwise. {}
+logic_expr ::= bitwise. {}
+
+bitwise ::= bitwise SHL mod. {}
+bitwise ::= bitwise SHR mod. {}
+bitwise ::= mod. {}
+
+mod ::= mod MOD aritexpr. {}
+mod ::= aritexpr. {}
 
 aritexpr ::= aritexpr SUMA term. {}
 aritexpr ::= aritexpr RESTA term. {}

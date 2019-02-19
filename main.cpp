@@ -9,7 +9,6 @@ void *ParseAlloc(void *(*mallocProc)(size_t));
 void Parse(void *yyp,int yymajor,int yyminor);
 void ParseFree( void *p, void (*freeProc)(void *));
 
-extern std::istream *in;
 extern std::string text;
 
 void parse(input_t in) {
@@ -23,11 +22,16 @@ void parse(input_t in) {
     ParseFree(parser, free);
 }
 
-int main()
+int main(int argc, char** argv)
 {
-    input_t in;
+    std::ifstream t(argv[1]);
+    std::istringstream in;
+    std::string str((std::istreambuf_iterator<char>(t)),
+                 std::istreambuf_iterator<char>());
+    in.str(str.c_str());
+    input_t inp(in);
 
-    parse(in);
+    parse(inp);
 
     return 0;
 }

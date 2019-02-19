@@ -15,10 +15,14 @@ struct input_t {
     char *cur;
     char *tok;
     bool eof;
+    std::istream& in;
 
-    input_t();
+    input_t(std::istream& in);
 
     bool fill(size_t need);
 };
 
 int lex(input_t & in);
+
+int getLineno();
+void reset();

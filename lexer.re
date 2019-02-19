@@ -1,13 +1,21 @@
-#include "lexer.h"
+#include "../lexer.h"
 #include "decaf_tokens.h"
 
 /*!max:re2c*/
 
-int lineno = 1;
 std::string text;
 int state = 0;
+int lineno = 1;
 
-input_t::input_t(){
+int getLineno(){
+    return lineno;
+}
+
+void reset(){
+    lineno = 1;
+}
+
+input_t::input_t(std::istream& in) : in(in){
     buf = new char[SIZE+YYMAXFILL];
     lim = buf + SIZE;
     cur = lim;
@@ -27,7 +35,9 @@ bool input_t::fill(size_t need){
     lim -= free;
     cur -= free;
     tok -= free;
-    lim += fread(lim, 1, free, stdin);
+    in.read(buf,free);
+    lim += in.gcount();
+    
     if (lim < buf + SIZE) {
         eof = true;
         memset(lim, 0, YYMAXFILL);
@@ -59,7 +69,7 @@ int lex(input_t & in)
             end = "\x00";
             wsp = [" "]+;
             eol = [\n];
-            dec = [1-9][0-9]*;
+            dec = [0-9]*;
             hex = '0x' [0-9a-fA-F]+;
             id =[_|a-zA-Z][_|a-zA-Z|0-9]*;
             dstr = "\"" [^"]* "\"";*/
@@ -152,6 +162,8 @@ int lex(input_t & in)
             ">" { text = ">"; return MENOR; }
             "<=" { text = "<="; return MAYORIGUAL; }
             ">=" { text = ">="; return MENORIGUAL; }
+            "<<" { text = "<<"; return SHL; }
+            ">>" { text = ">>"; return SHR; }
             "==" { text = "=="; return IGUAL; }
             "!=" { text = "!="; return DISTINTO; }
         */

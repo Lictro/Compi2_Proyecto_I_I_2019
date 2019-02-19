@@ -1,11 +1,15 @@
 State 0:
           program ::= * KWCLASS ID OPENCUR field_decl methods_field CLOSECUR
 
-                       KWCLASS shift        102    
+                       KWCLASS shift        111    
                        program accept
 
 State 1:
-          block ::= OPENCUR * statements CLOSECUR
+          field_decl ::= field_decl * decl SEMICOLON
+          decl ::= * type list_decl
+          type ::= * KWINT
+          type ::= * KWBOOL
+          block ::= OPENCUR field_decl * statements CLOSECUR
           statements ::= * statements statement
           statements ::= * statement
      (28) statements ::= *
@@ -30,13 +34,15 @@ State 1:
           lvalue ::= * ID
           lvalue ::= * ID OPENBRA condition CLOSEBRA
 
-                            ID shift        63     
+                            ID shift        68     
                             ID reduce       28      ** Parsing conflict **
-                      KWRETURN shift        7      
+                         KWINT shift-reduce 9      type ::= KWINT
+                        KWBOOL shift-reduce 10     type ::= KWBOOL
+                      KWRETURN shift        6      
                       KWRETURN reduce       28      ** Parsing conflict **
-                       KWBREAK shift        86     
+                       KWBREAK shift        85     
                        KWBREAK reduce       28      ** Parsing conflict **
-                    KWCONTINUE shift        85     
+                    KWCONTINUE shift        84     
                     KWCONTINUE reduce       28      ** Parsing conflict **
                            SOP shift        93     
                            SOP reduce       28      ** Parsing conflict **
@@ -46,20 +52,22 @@ State 1:
                            SOR reduce       28      ** Parsing conflict **
                         RANDOM shift        89     
                         RANDOM reduce       28      ** Parsing conflict **
-                          KWIF shift        83     
+                          KWIF shift        82     
                           KWIF reduce       28      ** Parsing conflict **
-                       KWWHILE shift        81     
+                       KWWHILE shift        80     
                        KWWHILE reduce       28      ** Parsing conflict **
-                         KWFOR shift        79     
+                         KWFOR shift        78     
                          KWFOR reduce       28      ** Parsing conflict **
-                    statements shift        4      
+                          decl shift        106    
+                          type shift        51     
+                    statements shift        15     
                      statement shift-reduce 27     statements ::= statement
-                        assign shift        97     
-                   method_call shift        96     
+                        assign shift        99     
+                   method_call shift        98     
                          if_st shift-reduce 31     statement ::= if_st
                          while shift-reduce 32     statement ::= while
                         for_st shift-reduce 37     statement ::= for_st
-                        lvalue shift        84     
+                        lvalue shift        83     
                      {default} reduce       28     statements ::=
 
 State 2:
@@ -71,13 +79,18 @@ State 2:
           condition ::= * logic_expr
           condition ::= * logic_expr AND logic_expr
           condition ::= * logic_expr OR logic_expr
-          logic_expr ::= * aritexpr MAYOR aritexpr
-          logic_expr ::= * aritexpr MENOR aritexpr
-          logic_expr ::= * aritexpr MAYORIGUAL aritexpr
-          logic_expr ::= * aritexpr MENORIGUAL aritexpr
-          logic_expr ::= * aritexpr IGUAL aritexpr
-          logic_expr ::= * aritexpr DISTINTO aritexpr
-          logic_expr ::= * aritexpr
+          logic_expr ::= * bitwise MAYOR bitwise
+          logic_expr ::= * bitwise MENOR bitwise
+          logic_expr ::= * bitwise MAYORIGUAL bitwise
+          logic_expr ::= * bitwise MENORIGUAL bitwise
+          logic_expr ::= * bitwise IGUAL bitwise
+          logic_expr ::= * bitwise DISTINTO bitwise
+          logic_expr ::= * bitwise
+          bitwise ::= * bitwise SHL mod
+          bitwise ::= * bitwise SHR mod
+          bitwise ::= * mod
+          mod ::= * mod MOD aritexpr
+          mod ::= * aritexpr
           aritexpr ::= * aritexpr SUMA term
           aritexpr ::= * aritexpr RESTA term
           aritexpr ::= * term
@@ -87,24 +100,26 @@ State 2:
           term ::= * factor
           unary ::= * RESTA
           unary ::= * NEGAR
-     (79) unary ::= *
+     (84) unary ::= *
           factor ::= * unary constant
           factor ::= * unary lvalue
           factor ::= * unary method_call
           factor ::= * unary OPENPAR condition CLOSEPAR
 
                         STRLIT shift-reduce 57     argument ::= STRLIT
-                         RESTA shift-reduce 77     unary ::= RESTA
-                         NEGAR shift-reduce 78     unary ::= NEGAR
+                         RESTA shift-reduce 82     unary ::= RESTA
+                         NEGAR shift-reduce 83     unary ::= NEGAR
                      condition shift-reduce 56     argument ::= condition
-                     arguments shift        60     
+                     arguments shift        64     
                       argument shift-reduce 55     arguments ::= argument
-                    logic_expr shift        65     
-                      aritexpr shift        49     
-                          term shift        51     
-                        factor shift-reduce 76     term ::= factor
-                         unary shift        25     
-                     {default} reduce       79     unary ::=
+                    logic_expr shift        71     
+                       bitwise shift        53     
+                           mod shift        95     
+                      aritexpr shift        66     
+                          term shift        54     
+                        factor shift-reduce 81     term ::= factor
+                         unary shift        28     
+                     {default} reduce       84     unary ::=
 
 State 3:
           method_call ::= SOP OPENPAR * arguments CLOSEPAR
@@ -115,13 +130,18 @@ State 3:
           condition ::= * logic_expr
           condition ::= * logic_expr AND logic_expr
           condition ::= * logic_expr OR logic_expr
-          logic_expr ::= * aritexpr MAYOR aritexpr
-          logic_expr ::= * aritexpr MENOR aritexpr
-          logic_expr ::= * aritexpr MAYORIGUAL aritexpr
-          logic_expr ::= * aritexpr MENORIGUAL aritexpr
-          logic_expr ::= * aritexpr IGUAL aritexpr
-          logic_expr ::= * aritexpr DISTINTO aritexpr
-          logic_expr ::= * aritexpr
+          logic_expr ::= * bitwise MAYOR bitwise
+          logic_expr ::= * bitwise MENOR bitwise
+          logic_expr ::= * bitwise MAYORIGUAL bitwise
+          logic_expr ::= * bitwise MENORIGUAL bitwise
+          logic_expr ::= * bitwise IGUAL bitwise
+          logic_expr ::= * bitwise DISTINTO bitwise
+          logic_expr ::= * bitwise
+          bitwise ::= * bitwise SHL mod
+          bitwise ::= * bitwise SHR mod
+          bitwise ::= * mod
+          mod ::= * mod MOD aritexpr
+          mod ::= * aritexpr
           aritexpr ::= * aritexpr SUMA term
           aritexpr ::= * aritexpr RESTA term
           aritexpr ::= * term
@@ -131,27 +151,525 @@ State 3:
           term ::= * factor
           unary ::= * RESTA
           unary ::= * NEGAR
-     (79) unary ::= *
+     (84) unary ::= *
           factor ::= * unary constant
           factor ::= * unary lvalue
           factor ::= * unary method_call
           factor ::= * unary OPENPAR condition CLOSEPAR
 
                         STRLIT shift-reduce 57     argument ::= STRLIT
-                         RESTA shift-reduce 77     unary ::= RESTA
-                         NEGAR shift-reduce 78     unary ::= NEGAR
+                         RESTA shift-reduce 82     unary ::= RESTA
+                         NEGAR shift-reduce 83     unary ::= NEGAR
                      condition shift-reduce 56     argument ::= condition
-                     arguments shift        61     
+                     arguments shift        65     
                       argument shift-reduce 55     arguments ::= argument
-                    logic_expr shift        65     
-                      aritexpr shift        49     
-                          term shift        51     
-                        factor shift-reduce 76     term ::= factor
-                         unary shift        25     
-                     {default} reduce       79     unary ::=
+                    logic_expr shift        71     
+                       bitwise shift        53     
+                           mod shift        95     
+                      aritexpr shift        66     
+                          term shift        54     
+                        factor shift-reduce 81     term ::= factor
+                         unary shift        28     
+                     {default} reduce       84     unary ::=
 
 State 4:
-          block ::= OPENCUR statements * CLOSECUR
+          method_call ::= ID OPENPAR * exprs_list CLOSEPAR
+          exprs_list ::= * exprs_list COMMA condition
+          exprs_list ::= * condition
+     (53) exprs_list ::= *
+          condition ::= * logic_expr
+          condition ::= * logic_expr AND logic_expr
+          condition ::= * logic_expr OR logic_expr
+          logic_expr ::= * bitwise MAYOR bitwise
+          logic_expr ::= * bitwise MENOR bitwise
+          logic_expr ::= * bitwise MAYORIGUAL bitwise
+          logic_expr ::= * bitwise MENORIGUAL bitwise
+          logic_expr ::= * bitwise IGUAL bitwise
+          logic_expr ::= * bitwise DISTINTO bitwise
+          logic_expr ::= * bitwise
+          bitwise ::= * bitwise SHL mod
+          bitwise ::= * bitwise SHR mod
+          bitwise ::= * mod
+          mod ::= * mod MOD aritexpr
+          mod ::= * aritexpr
+          aritexpr ::= * aritexpr SUMA term
+          aritexpr ::= * aritexpr RESTA term
+          aritexpr ::= * term
+          term ::= * term MUL factor
+          term ::= * term DIV factor
+          term ::= * term MOD factor
+          term ::= * factor
+          unary ::= * RESTA
+          unary ::= * NEGAR
+     (84) unary ::= *
+          factor ::= * unary constant
+          factor ::= * unary lvalue
+          factor ::= * unary method_call
+          factor ::= * unary OPENPAR condition CLOSEPAR
+
+                         COMMA reduce       53     exprs_list ::=
+                      CLOSEPAR reduce       53     exprs_list ::=
+                         RESTA shift-reduce 82     unary ::= RESTA
+                         NEGAR shift-reduce 83     unary ::= NEGAR
+                     condition shift-reduce 52     exprs_list ::= condition
+                    exprs_list shift        67     
+                    logic_expr shift        71     
+                       bitwise shift        53     
+                           mod shift        95     
+                      aritexpr shift        66     
+                          term shift        54     
+                        factor shift-reduce 81     term ::= factor
+                         unary shift        28     
+                     {default} reduce       84     unary ::=
+
+State 5:
+          arguments ::= arguments COMMA * argument
+          argument ::= * condition
+          argument ::= * STRLIT
+          condition ::= * logic_expr
+          condition ::= * logic_expr AND logic_expr
+          condition ::= * logic_expr OR logic_expr
+          logic_expr ::= * bitwise MAYOR bitwise
+          logic_expr ::= * bitwise MENOR bitwise
+          logic_expr ::= * bitwise MAYORIGUAL bitwise
+          logic_expr ::= * bitwise MENORIGUAL bitwise
+          logic_expr ::= * bitwise IGUAL bitwise
+          logic_expr ::= * bitwise DISTINTO bitwise
+          logic_expr ::= * bitwise
+          bitwise ::= * bitwise SHL mod
+          bitwise ::= * bitwise SHR mod
+          bitwise ::= * mod
+          mod ::= * mod MOD aritexpr
+          mod ::= * aritexpr
+          aritexpr ::= * aritexpr SUMA term
+          aritexpr ::= * aritexpr RESTA term
+          aritexpr ::= * term
+          term ::= * term MUL factor
+          term ::= * term DIV factor
+          term ::= * term MOD factor
+          term ::= * factor
+          unary ::= * RESTA
+          unary ::= * NEGAR
+     (84) unary ::= *
+          factor ::= * unary constant
+          factor ::= * unary lvalue
+          factor ::= * unary method_call
+          factor ::= * unary OPENPAR condition CLOSEPAR
+
+                        STRLIT shift-reduce 57     argument ::= STRLIT
+                         RESTA shift-reduce 82     unary ::= RESTA
+                         NEGAR shift-reduce 83     unary ::= NEGAR
+                     condition shift-reduce 56     argument ::= condition
+                      argument shift-reduce 54     arguments ::= arguments COMMA argument
+                    logic_expr shift        71     
+                       bitwise shift        53     
+                           mod shift        95     
+                      aritexpr shift        66     
+                          term shift        54     
+                        factor shift-reduce 81     term ::= factor
+                         unary shift        28     
+                     {default} reduce       84     unary ::=
+
+State 6:
+          statement ::= KWRETURN * condition SEMICOLON
+          statement ::= KWRETURN * SEMICOLON
+          condition ::= * logic_expr
+          condition ::= * logic_expr AND logic_expr
+          condition ::= * logic_expr OR logic_expr
+          logic_expr ::= * bitwise MAYOR bitwise
+          logic_expr ::= * bitwise MENOR bitwise
+          logic_expr ::= * bitwise MAYORIGUAL bitwise
+          logic_expr ::= * bitwise MENORIGUAL bitwise
+          logic_expr ::= * bitwise IGUAL bitwise
+          logic_expr ::= * bitwise DISTINTO bitwise
+          logic_expr ::= * bitwise
+          bitwise ::= * bitwise SHL mod
+          bitwise ::= * bitwise SHR mod
+          bitwise ::= * mod
+          mod ::= * mod MOD aritexpr
+          mod ::= * aritexpr
+          aritexpr ::= * aritexpr SUMA term
+          aritexpr ::= * aritexpr RESTA term
+          aritexpr ::= * term
+          term ::= * term MUL factor
+          term ::= * term DIV factor
+          term ::= * term MOD factor
+          term ::= * factor
+          unary ::= * RESTA
+          unary ::= * NEGAR
+     (84) unary ::= *
+          factor ::= * unary constant
+          factor ::= * unary lvalue
+          factor ::= * unary method_call
+          factor ::= * unary OPENPAR condition CLOSEPAR
+
+                     SEMICOLON shift-reduce 34     statement ::= KWRETURN SEMICOLON
+                         RESTA shift-reduce 82     unary ::= RESTA
+                         NEGAR shift-reduce 83     unary ::= NEGAR
+                     condition shift        97     
+                    logic_expr shift        71     
+                       bitwise shift        53     
+                           mod shift        95     
+                      aritexpr shift        66     
+                          term shift        54     
+                        factor shift-reduce 81     term ::= factor
+                         unary shift        28     
+                     {default} reduce       84     unary ::=
+
+State 7:
+          for_st ::= KWFOR OPENPAR list_asignings SEMICOLON * condition SEMICOLON list_asignings CLOSEPAR block
+          condition ::= * logic_expr
+          condition ::= * logic_expr AND logic_expr
+          condition ::= * logic_expr OR logic_expr
+          logic_expr ::= * bitwise MAYOR bitwise
+          logic_expr ::= * bitwise MENOR bitwise
+          logic_expr ::= * bitwise MAYORIGUAL bitwise
+          logic_expr ::= * bitwise MENORIGUAL bitwise
+          logic_expr ::= * bitwise IGUAL bitwise
+          logic_expr ::= * bitwise DISTINTO bitwise
+          logic_expr ::= * bitwise
+          bitwise ::= * bitwise SHL mod
+          bitwise ::= * bitwise SHR mod
+          bitwise ::= * mod
+          mod ::= * mod MOD aritexpr
+          mod ::= * aritexpr
+          aritexpr ::= * aritexpr SUMA term
+          aritexpr ::= * aritexpr RESTA term
+          aritexpr ::= * term
+          term ::= * term MUL factor
+          term ::= * term DIV factor
+          term ::= * term MOD factor
+          term ::= * factor
+          unary ::= * RESTA
+          unary ::= * NEGAR
+     (84) unary ::= *
+          factor ::= * unary constant
+          factor ::= * unary lvalue
+          factor ::= * unary method_call
+          factor ::= * unary OPENPAR condition CLOSEPAR
+
+                         RESTA shift-reduce 82     unary ::= RESTA
+                         NEGAR shift-reduce 83     unary ::= NEGAR
+                     condition shift        77     
+                    logic_expr shift        71     
+                       bitwise shift        53     
+                           mod shift        95     
+                      aritexpr shift        66     
+                          term shift        54     
+                        factor shift-reduce 81     term ::= factor
+                         unary shift        28     
+                     {default} reduce       84     unary ::=
+
+State 8:
+          while ::= KWWHILE OPENPAR * condition CLOSEPAR block
+          condition ::= * logic_expr
+          condition ::= * logic_expr AND logic_expr
+          condition ::= * logic_expr OR logic_expr
+          logic_expr ::= * bitwise MAYOR bitwise
+          logic_expr ::= * bitwise MENOR bitwise
+          logic_expr ::= * bitwise MAYORIGUAL bitwise
+          logic_expr ::= * bitwise MENORIGUAL bitwise
+          logic_expr ::= * bitwise IGUAL bitwise
+          logic_expr ::= * bitwise DISTINTO bitwise
+          logic_expr ::= * bitwise
+          bitwise ::= * bitwise SHL mod
+          bitwise ::= * bitwise SHR mod
+          bitwise ::= * mod
+          mod ::= * mod MOD aritexpr
+          mod ::= * aritexpr
+          aritexpr ::= * aritexpr SUMA term
+          aritexpr ::= * aritexpr RESTA term
+          aritexpr ::= * term
+          term ::= * term MUL factor
+          term ::= * term DIV factor
+          term ::= * term MOD factor
+          term ::= * factor
+          unary ::= * RESTA
+          unary ::= * NEGAR
+     (84) unary ::= *
+          factor ::= * unary constant
+          factor ::= * unary lvalue
+          factor ::= * unary method_call
+          factor ::= * unary OPENPAR condition CLOSEPAR
+
+                         RESTA shift-reduce 82     unary ::= RESTA
+                         NEGAR shift-reduce 83     unary ::= NEGAR
+                     condition shift        79     
+                    logic_expr shift        71     
+                       bitwise shift        53     
+                           mod shift        95     
+                      aritexpr shift        66     
+                          term shift        54     
+                        factor shift-reduce 81     term ::= factor
+                         unary shift        28     
+                     {default} reduce       84     unary ::=
+
+State 9:
+          if_st ::= KWIF OPENPAR * condition CLOSEPAR block opt_else
+          condition ::= * logic_expr
+          condition ::= * logic_expr AND logic_expr
+          condition ::= * logic_expr OR logic_expr
+          logic_expr ::= * bitwise MAYOR bitwise
+          logic_expr ::= * bitwise MENOR bitwise
+          logic_expr ::= * bitwise MAYORIGUAL bitwise
+          logic_expr ::= * bitwise MENORIGUAL bitwise
+          logic_expr ::= * bitwise IGUAL bitwise
+          logic_expr ::= * bitwise DISTINTO bitwise
+          logic_expr ::= * bitwise
+          bitwise ::= * bitwise SHL mod
+          bitwise ::= * bitwise SHR mod
+          bitwise ::= * mod
+          mod ::= * mod MOD aritexpr
+          mod ::= * aritexpr
+          aritexpr ::= * aritexpr SUMA term
+          aritexpr ::= * aritexpr RESTA term
+          aritexpr ::= * term
+          term ::= * term MUL factor
+          term ::= * term DIV factor
+          term ::= * term MOD factor
+          term ::= * factor
+          unary ::= * RESTA
+          unary ::= * NEGAR
+     (84) unary ::= *
+          factor ::= * unary constant
+          factor ::= * unary lvalue
+          factor ::= * unary method_call
+          factor ::= * unary OPENPAR condition CLOSEPAR
+
+                         RESTA shift-reduce 82     unary ::= RESTA
+                         NEGAR shift-reduce 83     unary ::= NEGAR
+                     condition shift        81     
+                    logic_expr shift        71     
+                       bitwise shift        53     
+                           mod shift        95     
+                      aritexpr shift        66     
+                          term shift        54     
+                        factor shift-reduce 81     term ::= factor
+                         unary shift        28     
+                     {default} reduce       84     unary ::=
+
+State 10:
+          assign ::= lvalue OPASSIGN * condition
+          condition ::= * logic_expr
+          condition ::= * logic_expr AND logic_expr
+          condition ::= * logic_expr OR logic_expr
+          logic_expr ::= * bitwise MAYOR bitwise
+          logic_expr ::= * bitwise MENOR bitwise
+          logic_expr ::= * bitwise MAYORIGUAL bitwise
+          logic_expr ::= * bitwise MENORIGUAL bitwise
+          logic_expr ::= * bitwise IGUAL bitwise
+          logic_expr ::= * bitwise DISTINTO bitwise
+          logic_expr ::= * bitwise
+          bitwise ::= * bitwise SHL mod
+          bitwise ::= * bitwise SHR mod
+          bitwise ::= * mod
+          mod ::= * mod MOD aritexpr
+          mod ::= * aritexpr
+          aritexpr ::= * aritexpr SUMA term
+          aritexpr ::= * aritexpr RESTA term
+          aritexpr ::= * term
+          term ::= * term MUL factor
+          term ::= * term DIV factor
+          term ::= * term MOD factor
+          term ::= * factor
+          unary ::= * RESTA
+          unary ::= * NEGAR
+     (84) unary ::= *
+          factor ::= * unary constant
+          factor ::= * unary lvalue
+          factor ::= * unary method_call
+          factor ::= * unary OPENPAR condition CLOSEPAR
+
+                         RESTA shift-reduce 82     unary ::= RESTA
+                         NEGAR shift-reduce 83     unary ::= NEGAR
+                     condition shift-reduce 38     assign ::= lvalue OPASSIGN condition
+                    logic_expr shift        71     
+                       bitwise shift        53     
+                           mod shift        95     
+                      aritexpr shift        66     
+                          term shift        54     
+                        factor shift-reduce 81     term ::= factor
+                         unary shift        28     
+                     {default} reduce       84     unary ::=
+
+State 11:
+          condition ::= * logic_expr
+          condition ::= * logic_expr AND logic_expr
+          condition ::= * logic_expr OR logic_expr
+          logic_expr ::= * bitwise MAYOR bitwise
+          logic_expr ::= * bitwise MENOR bitwise
+          logic_expr ::= * bitwise MAYORIGUAL bitwise
+          logic_expr ::= * bitwise MENORIGUAL bitwise
+          logic_expr ::= * bitwise IGUAL bitwise
+          logic_expr ::= * bitwise DISTINTO bitwise
+          logic_expr ::= * bitwise
+          bitwise ::= * bitwise SHL mod
+          bitwise ::= * bitwise SHR mod
+          bitwise ::= * mod
+          mod ::= * mod MOD aritexpr
+          mod ::= * aritexpr
+          aritexpr ::= * aritexpr SUMA term
+          aritexpr ::= * aritexpr RESTA term
+          aritexpr ::= * term
+          term ::= * term MUL factor
+          term ::= * term DIV factor
+          term ::= * term MOD factor
+          term ::= * factor
+          unary ::= * RESTA
+          unary ::= * NEGAR
+     (84) unary ::= *
+          factor ::= * unary constant
+          factor ::= * unary lvalue
+          factor ::= * unary method_call
+          factor ::= * unary OPENPAR condition CLOSEPAR
+          factor ::= unary OPENPAR * condition CLOSEPAR
+
+                         RESTA shift-reduce 82     unary ::= RESTA
+                         NEGAR shift-reduce 83     unary ::= NEGAR
+                     condition shift        87     
+                    logic_expr shift        71     
+                       bitwise shift        53     
+                           mod shift        95     
+                      aritexpr shift        66     
+                          term shift        54     
+                        factor shift-reduce 81     term ::= factor
+                         unary shift        28     
+                     {default} reduce       84     unary ::=
+
+State 12:
+          method_call ::= RANDOM OPENPAR * condition CLOSEPAR
+          condition ::= * logic_expr
+          condition ::= * logic_expr AND logic_expr
+          condition ::= * logic_expr OR logic_expr
+          logic_expr ::= * bitwise MAYOR bitwise
+          logic_expr ::= * bitwise MENOR bitwise
+          logic_expr ::= * bitwise MAYORIGUAL bitwise
+          logic_expr ::= * bitwise MENORIGUAL bitwise
+          logic_expr ::= * bitwise IGUAL bitwise
+          logic_expr ::= * bitwise DISTINTO bitwise
+          logic_expr ::= * bitwise
+          bitwise ::= * bitwise SHL mod
+          bitwise ::= * bitwise SHR mod
+          bitwise ::= * mod
+          mod ::= * mod MOD aritexpr
+          mod ::= * aritexpr
+          aritexpr ::= * aritexpr SUMA term
+          aritexpr ::= * aritexpr RESTA term
+          aritexpr ::= * term
+          term ::= * term MUL factor
+          term ::= * term DIV factor
+          term ::= * term MOD factor
+          term ::= * factor
+          unary ::= * RESTA
+          unary ::= * NEGAR
+     (84) unary ::= *
+          factor ::= * unary constant
+          factor ::= * unary lvalue
+          factor ::= * unary method_call
+          factor ::= * unary OPENPAR condition CLOSEPAR
+
+                         RESTA shift-reduce 82     unary ::= RESTA
+                         NEGAR shift-reduce 83     unary ::= NEGAR
+                     condition shift        88     
+                    logic_expr shift        71     
+                       bitwise shift        53     
+                           mod shift        95     
+                      aritexpr shift        66     
+                          term shift        54     
+                        factor shift-reduce 81     term ::= factor
+                         unary shift        28     
+                     {default} reduce       84     unary ::=
+
+State 13:
+          lvalue ::= ID OPENBRA * condition CLOSEBRA
+          condition ::= * logic_expr
+          condition ::= * logic_expr AND logic_expr
+          condition ::= * logic_expr OR logic_expr
+          logic_expr ::= * bitwise MAYOR bitwise
+          logic_expr ::= * bitwise MENOR bitwise
+          logic_expr ::= * bitwise MAYORIGUAL bitwise
+          logic_expr ::= * bitwise MENORIGUAL bitwise
+          logic_expr ::= * bitwise IGUAL bitwise
+          logic_expr ::= * bitwise DISTINTO bitwise
+          logic_expr ::= * bitwise
+          bitwise ::= * bitwise SHL mod
+          bitwise ::= * bitwise SHR mod
+          bitwise ::= * mod
+          mod ::= * mod MOD aritexpr
+          mod ::= * aritexpr
+          aritexpr ::= * aritexpr SUMA term
+          aritexpr ::= * aritexpr RESTA term
+          aritexpr ::= * term
+          term ::= * term MUL factor
+          term ::= * term DIV factor
+          term ::= * term MOD factor
+          term ::= * factor
+          unary ::= * RESTA
+          unary ::= * NEGAR
+     (84) unary ::= *
+          factor ::= * unary constant
+          factor ::= * unary lvalue
+          factor ::= * unary method_call
+          factor ::= * unary OPENPAR condition CLOSEPAR
+
+                         RESTA shift-reduce 82     unary ::= RESTA
+                         NEGAR shift-reduce 83     unary ::= NEGAR
+                     condition shift        94     
+                    logic_expr shift        71     
+                       bitwise shift        53     
+                           mod shift        95     
+                      aritexpr shift        66     
+                          term shift        54     
+                        factor shift-reduce 81     term ::= factor
+                         unary shift        28     
+                     {default} reduce       84     unary ::=
+
+State 14:
+          exprs_list ::= exprs_list COMMA * condition
+          condition ::= * logic_expr
+          condition ::= * logic_expr AND logic_expr
+          condition ::= * logic_expr OR logic_expr
+          logic_expr ::= * bitwise MAYOR bitwise
+          logic_expr ::= * bitwise MENOR bitwise
+          logic_expr ::= * bitwise MAYORIGUAL bitwise
+          logic_expr ::= * bitwise MENORIGUAL bitwise
+          logic_expr ::= * bitwise IGUAL bitwise
+          logic_expr ::= * bitwise DISTINTO bitwise
+          logic_expr ::= * bitwise
+          bitwise ::= * bitwise SHL mod
+          bitwise ::= * bitwise SHR mod
+          bitwise ::= * mod
+          mod ::= * mod MOD aritexpr
+          mod ::= * aritexpr
+          aritexpr ::= * aritexpr SUMA term
+          aritexpr ::= * aritexpr RESTA term
+          aritexpr ::= * term
+          term ::= * term MUL factor
+          term ::= * term DIV factor
+          term ::= * term MOD factor
+          term ::= * factor
+          unary ::= * RESTA
+          unary ::= * NEGAR
+     (84) unary ::= *
+          factor ::= * unary constant
+          factor ::= * unary lvalue
+          factor ::= * unary method_call
+          factor ::= * unary OPENPAR condition CLOSEPAR
+
+                         RESTA shift-reduce 82     unary ::= RESTA
+                         NEGAR shift-reduce 83     unary ::= NEGAR
+                     condition shift-reduce 51     exprs_list ::= exprs_list COMMA condition
+                    logic_expr shift        71     
+                       bitwise shift        53     
+                           mod shift        95     
+                      aritexpr shift        66     
+                          term shift        54     
+                        factor shift-reduce 81     term ::= factor
+                         unary shift        28     
+                     {default} reduce       84     unary ::=
+
+State 15:
+          block ::= OPENCUR field_decl statements * CLOSECUR
           statements ::= statements * statement
           statement ::= * assign SEMICOLON
           statement ::= * method_call SEMICOLON
@@ -174,446 +692,299 @@ State 4:
           lvalue ::= * ID
           lvalue ::= * ID OPENBRA condition CLOSEBRA
 
-                            ID shift        63     
-                      CLOSECUR shift-reduce 25     block ::= OPENCUR statements CLOSECUR
-                      KWRETURN shift        7      
-                       KWBREAK shift        86     
-                    KWCONTINUE shift        85     
+                            ID shift        68     
+                      CLOSECUR shift-reduce 25     block ::= OPENCUR field_decl statements CLOSECUR
+                      KWRETURN shift        6      
+                       KWBREAK shift        85     
+                    KWCONTINUE shift        84     
                            SOP shift        93     
                          SOPLN shift        92     
                            SOR shift        91     
                         RANDOM shift        89     
-                          KWIF shift        83     
-                       KWWHILE shift        81     
-                         KWFOR shift        79     
+                          KWIF shift        82     
+                       KWWHILE shift        80     
+                         KWFOR shift        78     
                      statement shift-reduce 26     statements ::= statements statement
-                        assign shift        97     
-                   method_call shift        96     
+                        assign shift        99     
+                   method_call shift        98     
                          if_st shift-reduce 31     statement ::= if_st
                          while shift-reduce 32     statement ::= while
                         for_st shift-reduce 37     statement ::= for_st
-                        lvalue shift        84     
-
-State 5:
-          method_call ::= ID OPENPAR * exprs_list CLOSEPAR
-          exprs_list ::= * exprs_list COMMA condition
-          exprs_list ::= * condition
-     (53) exprs_list ::= *
-          condition ::= * logic_expr
-          condition ::= * logic_expr AND logic_expr
-          condition ::= * logic_expr OR logic_expr
-          logic_expr ::= * aritexpr MAYOR aritexpr
-          logic_expr ::= * aritexpr MENOR aritexpr
-          logic_expr ::= * aritexpr MAYORIGUAL aritexpr
-          logic_expr ::= * aritexpr MENORIGUAL aritexpr
-          logic_expr ::= * aritexpr IGUAL aritexpr
-          logic_expr ::= * aritexpr DISTINTO aritexpr
-          logic_expr ::= * aritexpr
-          aritexpr ::= * aritexpr SUMA term
-          aritexpr ::= * aritexpr RESTA term
-          aritexpr ::= * term
-          term ::= * term MUL factor
-          term ::= * term DIV factor
-          term ::= * term MOD factor
-          term ::= * factor
-          unary ::= * RESTA
-          unary ::= * NEGAR
-     (79) unary ::= *
-          factor ::= * unary constant
-          factor ::= * unary lvalue
-          factor ::= * unary method_call
-          factor ::= * unary OPENPAR condition CLOSEPAR
-
-                         COMMA reduce       53     exprs_list ::=
-                      CLOSEPAR reduce       53     exprs_list ::=
-                         RESTA shift-reduce 77     unary ::= RESTA
-                         NEGAR shift-reduce 78     unary ::= NEGAR
-                     condition shift-reduce 52     exprs_list ::= condition
-                    exprs_list shift        62     
-                    logic_expr shift        65     
-                      aritexpr shift        49     
-                          term shift        51     
-                        factor shift-reduce 76     term ::= factor
-                         unary shift        25     
-                     {default} reduce       79     unary ::=
-
-State 6:
-          arguments ::= arguments COMMA * argument
-          argument ::= * condition
-          argument ::= * STRLIT
-          condition ::= * logic_expr
-          condition ::= * logic_expr AND logic_expr
-          condition ::= * logic_expr OR logic_expr
-          logic_expr ::= * aritexpr MAYOR aritexpr
-          logic_expr ::= * aritexpr MENOR aritexpr
-          logic_expr ::= * aritexpr MAYORIGUAL aritexpr
-          logic_expr ::= * aritexpr MENORIGUAL aritexpr
-          logic_expr ::= * aritexpr IGUAL aritexpr
-          logic_expr ::= * aritexpr DISTINTO aritexpr
-          logic_expr ::= * aritexpr
-          aritexpr ::= * aritexpr SUMA term
-          aritexpr ::= * aritexpr RESTA term
-          aritexpr ::= * term
-          term ::= * term MUL factor
-          term ::= * term DIV factor
-          term ::= * term MOD factor
-          term ::= * factor
-          unary ::= * RESTA
-          unary ::= * NEGAR
-     (79) unary ::= *
-          factor ::= * unary constant
-          factor ::= * unary lvalue
-          factor ::= * unary method_call
-          factor ::= * unary OPENPAR condition CLOSEPAR
-
-                        STRLIT shift-reduce 57     argument ::= STRLIT
-                         RESTA shift-reduce 77     unary ::= RESTA
-                         NEGAR shift-reduce 78     unary ::= NEGAR
-                     condition shift-reduce 56     argument ::= condition
-                      argument shift-reduce 54     arguments ::= arguments COMMA argument
-                    logic_expr shift        65     
-                      aritexpr shift        49     
-                          term shift        51     
-                        factor shift-reduce 76     term ::= factor
-                         unary shift        25     
-                     {default} reduce       79     unary ::=
-
-State 7:
-          statement ::= KWRETURN * condition SEMICOLON
-          statement ::= KWRETURN * SEMICOLON
-          condition ::= * logic_expr
-          condition ::= * logic_expr AND logic_expr
-          condition ::= * logic_expr OR logic_expr
-          logic_expr ::= * aritexpr MAYOR aritexpr
-          logic_expr ::= * aritexpr MENOR aritexpr
-          logic_expr ::= * aritexpr MAYORIGUAL aritexpr
-          logic_expr ::= * aritexpr MENORIGUAL aritexpr
-          logic_expr ::= * aritexpr IGUAL aritexpr
-          logic_expr ::= * aritexpr DISTINTO aritexpr
-          logic_expr ::= * aritexpr
-          aritexpr ::= * aritexpr SUMA term
-          aritexpr ::= * aritexpr RESTA term
-          aritexpr ::= * term
-          term ::= * term MUL factor
-          term ::= * term DIV factor
-          term ::= * term MOD factor
-          term ::= * factor
-          unary ::= * RESTA
-          unary ::= * NEGAR
-     (79) unary ::= *
-          factor ::= * unary constant
-          factor ::= * unary lvalue
-          factor ::= * unary method_call
-          factor ::= * unary OPENPAR condition CLOSEPAR
-
-                     SEMICOLON shift-reduce 34     statement ::= KWRETURN SEMICOLON
-                         RESTA shift-reduce 77     unary ::= RESTA
-                         NEGAR shift-reduce 78     unary ::= NEGAR
-                     condition shift        95     
-                    logic_expr shift        65     
-                      aritexpr shift        49     
-                          term shift        51     
-                        factor shift-reduce 76     term ::= factor
-                         unary shift        25     
-                     {default} reduce       79     unary ::=
-
-State 8:
-          for_st ::= KWFOR OPENPAR list_asignings SEMICOLON * condition SEMICOLON list_asignings CLOSEPAR block
-          condition ::= * logic_expr
-          condition ::= * logic_expr AND logic_expr
-          condition ::= * logic_expr OR logic_expr
-          logic_expr ::= * aritexpr MAYOR aritexpr
-          logic_expr ::= * aritexpr MENOR aritexpr
-          logic_expr ::= * aritexpr MAYORIGUAL aritexpr
-          logic_expr ::= * aritexpr MENORIGUAL aritexpr
-          logic_expr ::= * aritexpr IGUAL aritexpr
-          logic_expr ::= * aritexpr DISTINTO aritexpr
-          logic_expr ::= * aritexpr
-          aritexpr ::= * aritexpr SUMA term
-          aritexpr ::= * aritexpr RESTA term
-          aritexpr ::= * term
-          term ::= * term MUL factor
-          term ::= * term DIV factor
-          term ::= * term MOD factor
-          term ::= * factor
-          unary ::= * RESTA
-          unary ::= * NEGAR
-     (79) unary ::= *
-          factor ::= * unary constant
-          factor ::= * unary lvalue
-          factor ::= * unary method_call
-          factor ::= * unary OPENPAR condition CLOSEPAR
-
-                         RESTA shift-reduce 77     unary ::= RESTA
-                         NEGAR shift-reduce 78     unary ::= NEGAR
-                     condition shift        78     
-                    logic_expr shift        65     
-                      aritexpr shift        49     
-                          term shift        51     
-                        factor shift-reduce 76     term ::= factor
-                         unary shift        25     
-                     {default} reduce       79     unary ::=
-
-State 9:
-          while ::= KWWHILE OPENPAR * condition CLOSEPAR block
-          condition ::= * logic_expr
-          condition ::= * logic_expr AND logic_expr
-          condition ::= * logic_expr OR logic_expr
-          logic_expr ::= * aritexpr MAYOR aritexpr
-          logic_expr ::= * aritexpr MENOR aritexpr
-          logic_expr ::= * aritexpr MAYORIGUAL aritexpr
-          logic_expr ::= * aritexpr MENORIGUAL aritexpr
-          logic_expr ::= * aritexpr IGUAL aritexpr
-          logic_expr ::= * aritexpr DISTINTO aritexpr
-          logic_expr ::= * aritexpr
-          aritexpr ::= * aritexpr SUMA term
-          aritexpr ::= * aritexpr RESTA term
-          aritexpr ::= * term
-          term ::= * term MUL factor
-          term ::= * term DIV factor
-          term ::= * term MOD factor
-          term ::= * factor
-          unary ::= * RESTA
-          unary ::= * NEGAR
-     (79) unary ::= *
-          factor ::= * unary constant
-          factor ::= * unary lvalue
-          factor ::= * unary method_call
-          factor ::= * unary OPENPAR condition CLOSEPAR
-
-                         RESTA shift-reduce 77     unary ::= RESTA
-                         NEGAR shift-reduce 78     unary ::= NEGAR
-                     condition shift        80     
-                    logic_expr shift        65     
-                      aritexpr shift        49     
-                          term shift        51     
-                        factor shift-reduce 76     term ::= factor
-                         unary shift        25     
-                     {default} reduce       79     unary ::=
-
-State 10:
-          if_st ::= KWIF OPENPAR * condition CLOSEPAR block opt_else
-          condition ::= * logic_expr
-          condition ::= * logic_expr AND logic_expr
-          condition ::= * logic_expr OR logic_expr
-          logic_expr ::= * aritexpr MAYOR aritexpr
-          logic_expr ::= * aritexpr MENOR aritexpr
-          logic_expr ::= * aritexpr MAYORIGUAL aritexpr
-          logic_expr ::= * aritexpr MENORIGUAL aritexpr
-          logic_expr ::= * aritexpr IGUAL aritexpr
-          logic_expr ::= * aritexpr DISTINTO aritexpr
-          logic_expr ::= * aritexpr
-          aritexpr ::= * aritexpr SUMA term
-          aritexpr ::= * aritexpr RESTA term
-          aritexpr ::= * term
-          term ::= * term MUL factor
-          term ::= * term DIV factor
-          term ::= * term MOD factor
-          term ::= * factor
-          unary ::= * RESTA
-          unary ::= * NEGAR
-     (79) unary ::= *
-          factor ::= * unary constant
-          factor ::= * unary lvalue
-          factor ::= * unary method_call
-          factor ::= * unary OPENPAR condition CLOSEPAR
-
-                         RESTA shift-reduce 77     unary ::= RESTA
-                         NEGAR shift-reduce 78     unary ::= NEGAR
-                     condition shift        82     
-                    logic_expr shift        65     
-                      aritexpr shift        49     
-                          term shift        51     
-                        factor shift-reduce 76     term ::= factor
-                         unary shift        25     
-                     {default} reduce       79     unary ::=
-
-State 11:
-          assign ::= lvalue OPASSIGN * condition
-          condition ::= * logic_expr
-          condition ::= * logic_expr AND logic_expr
-          condition ::= * logic_expr OR logic_expr
-          logic_expr ::= * aritexpr MAYOR aritexpr
-          logic_expr ::= * aritexpr MENOR aritexpr
-          logic_expr ::= * aritexpr MAYORIGUAL aritexpr
-          logic_expr ::= * aritexpr MENORIGUAL aritexpr
-          logic_expr ::= * aritexpr IGUAL aritexpr
-          logic_expr ::= * aritexpr DISTINTO aritexpr
-          logic_expr ::= * aritexpr
-          aritexpr ::= * aritexpr SUMA term
-          aritexpr ::= * aritexpr RESTA term
-          aritexpr ::= * term
-          term ::= * term MUL factor
-          term ::= * term DIV factor
-          term ::= * term MOD factor
-          term ::= * factor
-          unary ::= * RESTA
-          unary ::= * NEGAR
-     (79) unary ::= *
-          factor ::= * unary constant
-          factor ::= * unary lvalue
-          factor ::= * unary method_call
-          factor ::= * unary OPENPAR condition CLOSEPAR
-
-                         RESTA shift-reduce 77     unary ::= RESTA
-                         NEGAR shift-reduce 78     unary ::= NEGAR
-                     condition shift-reduce 38     assign ::= lvalue OPASSIGN condition
-                    logic_expr shift        65     
-                      aritexpr shift        49     
-                          term shift        51     
-                        factor shift-reduce 76     term ::= factor
-                         unary shift        25     
-                     {default} reduce       79     unary ::=
-
-State 12:
-          condition ::= * logic_expr
-          condition ::= * logic_expr AND logic_expr
-          condition ::= * logic_expr OR logic_expr
-          logic_expr ::= * aritexpr MAYOR aritexpr
-          logic_expr ::= * aritexpr MENOR aritexpr
-          logic_expr ::= * aritexpr MAYORIGUAL aritexpr
-          logic_expr ::= * aritexpr MENORIGUAL aritexpr
-          logic_expr ::= * aritexpr IGUAL aritexpr
-          logic_expr ::= * aritexpr DISTINTO aritexpr
-          logic_expr ::= * aritexpr
-          aritexpr ::= * aritexpr SUMA term
-          aritexpr ::= * aritexpr RESTA term
-          aritexpr ::= * term
-          term ::= * term MUL factor
-          term ::= * term DIV factor
-          term ::= * term MOD factor
-          term ::= * factor
-          unary ::= * RESTA
-          unary ::= * NEGAR
-     (79) unary ::= *
-          factor ::= * unary constant
-          factor ::= * unary lvalue
-          factor ::= * unary method_call
-          factor ::= * unary OPENPAR condition CLOSEPAR
-          factor ::= unary OPENPAR * condition CLOSEPAR
-
-                         RESTA shift-reduce 77     unary ::= RESTA
-                         NEGAR shift-reduce 78     unary ::= NEGAR
-                     condition shift        87     
-                    logic_expr shift        65     
-                      aritexpr shift        49     
-                          term shift        51     
-                        factor shift-reduce 76     term ::= factor
-                         unary shift        25     
-                     {default} reduce       79     unary ::=
-
-State 13:
-          method_call ::= RANDOM OPENPAR * condition CLOSEPAR
-          condition ::= * logic_expr
-          condition ::= * logic_expr AND logic_expr
-          condition ::= * logic_expr OR logic_expr
-          logic_expr ::= * aritexpr MAYOR aritexpr
-          logic_expr ::= * aritexpr MENOR aritexpr
-          logic_expr ::= * aritexpr MAYORIGUAL aritexpr
-          logic_expr ::= * aritexpr MENORIGUAL aritexpr
-          logic_expr ::= * aritexpr IGUAL aritexpr
-          logic_expr ::= * aritexpr DISTINTO aritexpr
-          logic_expr ::= * aritexpr
-          aritexpr ::= * aritexpr SUMA term
-          aritexpr ::= * aritexpr RESTA term
-          aritexpr ::= * term
-          term ::= * term MUL factor
-          term ::= * term DIV factor
-          term ::= * term MOD factor
-          term ::= * factor
-          unary ::= * RESTA
-          unary ::= * NEGAR
-     (79) unary ::= *
-          factor ::= * unary constant
-          factor ::= * unary lvalue
-          factor ::= * unary method_call
-          factor ::= * unary OPENPAR condition CLOSEPAR
-
-                         RESTA shift-reduce 77     unary ::= RESTA
-                         NEGAR shift-reduce 78     unary ::= NEGAR
-                     condition shift        88     
-                    logic_expr shift        65     
-                      aritexpr shift        49     
-                          term shift        51     
-                        factor shift-reduce 76     term ::= factor
-                         unary shift        25     
-                     {default} reduce       79     unary ::=
-
-State 14:
-          lvalue ::= ID OPENBRA * condition CLOSEBRA
-          condition ::= * logic_expr
-          condition ::= * logic_expr AND logic_expr
-          condition ::= * logic_expr OR logic_expr
-          logic_expr ::= * aritexpr MAYOR aritexpr
-          logic_expr ::= * aritexpr MENOR aritexpr
-          logic_expr ::= * aritexpr MAYORIGUAL aritexpr
-          logic_expr ::= * aritexpr MENORIGUAL aritexpr
-          logic_expr ::= * aritexpr IGUAL aritexpr
-          logic_expr ::= * aritexpr DISTINTO aritexpr
-          logic_expr ::= * aritexpr
-          aritexpr ::= * aritexpr SUMA term
-          aritexpr ::= * aritexpr RESTA term
-          aritexpr ::= * term
-          term ::= * term MUL factor
-          term ::= * term DIV factor
-          term ::= * term MOD factor
-          term ::= * factor
-          unary ::= * RESTA
-          unary ::= * NEGAR
-     (79) unary ::= *
-          factor ::= * unary constant
-          factor ::= * unary lvalue
-          factor ::= * unary method_call
-          factor ::= * unary OPENPAR condition CLOSEPAR
-
-                         RESTA shift-reduce 77     unary ::= RESTA
-                         NEGAR shift-reduce 78     unary ::= NEGAR
-                     condition shift        94     
-                    logic_expr shift        65     
-                      aritexpr shift        49     
-                          term shift        51     
-                        factor shift-reduce 76     term ::= factor
-                         unary shift        25     
-                     {default} reduce       79     unary ::=
-
-State 15:
-          exprs_list ::= exprs_list COMMA * condition
-          condition ::= * logic_expr
-          condition ::= * logic_expr AND logic_expr
-          condition ::= * logic_expr OR logic_expr
-          logic_expr ::= * aritexpr MAYOR aritexpr
-          logic_expr ::= * aritexpr MENOR aritexpr
-          logic_expr ::= * aritexpr MAYORIGUAL aritexpr
-          logic_expr ::= * aritexpr MENORIGUAL aritexpr
-          logic_expr ::= * aritexpr IGUAL aritexpr
-          logic_expr ::= * aritexpr DISTINTO aritexpr
-          logic_expr ::= * aritexpr
-          aritexpr ::= * aritexpr SUMA term
-          aritexpr ::= * aritexpr RESTA term
-          aritexpr ::= * term
-          term ::= * term MUL factor
-          term ::= * term DIV factor
-          term ::= * term MOD factor
-          term ::= * factor
-          unary ::= * RESTA
-          unary ::= * NEGAR
-     (79) unary ::= *
-          factor ::= * unary constant
-          factor ::= * unary lvalue
-          factor ::= * unary method_call
-          factor ::= * unary OPENPAR condition CLOSEPAR
-
-                         RESTA shift-reduce 77     unary ::= RESTA
-                         NEGAR shift-reduce 78     unary ::= NEGAR
-                     condition shift-reduce 51     exprs_list ::= exprs_list COMMA condition
-                    logic_expr shift        65     
-                      aritexpr shift        49     
-                          term shift        51     
-                        factor shift-reduce 76     term ::= factor
-                         unary shift        25     
-                     {default} reduce       79     unary ::=
+                        lvalue shift        83     
 
 State 16:
+          condition ::= logic_expr OR * logic_expr
+          logic_expr ::= * bitwise MAYOR bitwise
+          logic_expr ::= * bitwise MENOR bitwise
+          logic_expr ::= * bitwise MAYORIGUAL bitwise
+          logic_expr ::= * bitwise MENORIGUAL bitwise
+          logic_expr ::= * bitwise IGUAL bitwise
+          logic_expr ::= * bitwise DISTINTO bitwise
+          logic_expr ::= * bitwise
+          bitwise ::= * bitwise SHL mod
+          bitwise ::= * bitwise SHR mod
+          bitwise ::= * mod
+          mod ::= * mod MOD aritexpr
+          mod ::= * aritexpr
+          aritexpr ::= * aritexpr SUMA term
+          aritexpr ::= * aritexpr RESTA term
+          aritexpr ::= * term
+          term ::= * term MUL factor
+          term ::= * term DIV factor
+          term ::= * term MOD factor
+          term ::= * factor
+          unary ::= * RESTA
+          unary ::= * NEGAR
+     (84) unary ::= *
+          factor ::= * unary constant
+          factor ::= * unary lvalue
+          factor ::= * unary method_call
+          factor ::= * unary OPENPAR condition CLOSEPAR
+
+                         RESTA shift-reduce 82     unary ::= RESTA
+                         NEGAR shift-reduce 83     unary ::= NEGAR
+                    logic_expr shift-reduce 62     condition ::= logic_expr OR logic_expr
+                       bitwise shift        53     
+                           mod shift        95     
+                      aritexpr shift        66     
+                          term shift        54     
+                        factor shift-reduce 81     term ::= factor
+                         unary shift        28     
+                     {default} reduce       84     unary ::=
+
+State 17:
+          condition ::= logic_expr AND * logic_expr
+          logic_expr ::= * bitwise MAYOR bitwise
+          logic_expr ::= * bitwise MENOR bitwise
+          logic_expr ::= * bitwise MAYORIGUAL bitwise
+          logic_expr ::= * bitwise MENORIGUAL bitwise
+          logic_expr ::= * bitwise IGUAL bitwise
+          logic_expr ::= * bitwise DISTINTO bitwise
+          logic_expr ::= * bitwise
+          bitwise ::= * bitwise SHL mod
+          bitwise ::= * bitwise SHR mod
+          bitwise ::= * mod
+          mod ::= * mod MOD aritexpr
+          mod ::= * aritexpr
+          aritexpr ::= * aritexpr SUMA term
+          aritexpr ::= * aritexpr RESTA term
+          aritexpr ::= * term
+          term ::= * term MUL factor
+          term ::= * term DIV factor
+          term ::= * term MOD factor
+          term ::= * factor
+          unary ::= * RESTA
+          unary ::= * NEGAR
+     (84) unary ::= *
+          factor ::= * unary constant
+          factor ::= * unary lvalue
+          factor ::= * unary method_call
+          factor ::= * unary OPENPAR condition CLOSEPAR
+
+                         RESTA shift-reduce 82     unary ::= RESTA
+                         NEGAR shift-reduce 83     unary ::= NEGAR
+                    logic_expr shift-reduce 61     condition ::= logic_expr AND logic_expr
+                       bitwise shift        53     
+                           mod shift        95     
+                      aritexpr shift        66     
+                          term shift        54     
+                        factor shift-reduce 81     term ::= factor
+                         unary shift        28     
+                     {default} reduce       84     unary ::=
+
+State 18:
+          logic_expr ::= bitwise DISTINTO * bitwise
+          bitwise ::= * bitwise SHL mod
+          bitwise ::= * bitwise SHR mod
+          bitwise ::= * mod
+          mod ::= * mod MOD aritexpr
+          mod ::= * aritexpr
+          aritexpr ::= * aritexpr SUMA term
+          aritexpr ::= * aritexpr RESTA term
+          aritexpr ::= * term
+          term ::= * term MUL factor
+          term ::= * term DIV factor
+          term ::= * term MOD factor
+          term ::= * factor
+          unary ::= * RESTA
+          unary ::= * NEGAR
+     (84) unary ::= *
+          factor ::= * unary constant
+          factor ::= * unary lvalue
+          factor ::= * unary method_call
+          factor ::= * unary OPENPAR condition CLOSEPAR
+
+                         RESTA shift-reduce 82     unary ::= RESTA
+                         NEGAR shift-reduce 83     unary ::= NEGAR
+                       bitwise shift        59     
+                           mod shift        95     
+                      aritexpr shift        66     
+                          term shift        54     
+                        factor shift-reduce 81     term ::= factor
+                         unary shift        28     
+                     {default} reduce       84     unary ::=
+
+State 19:
+          logic_expr ::= bitwise IGUAL * bitwise
+          bitwise ::= * bitwise SHL mod
+          bitwise ::= * bitwise SHR mod
+          bitwise ::= * mod
+          mod ::= * mod MOD aritexpr
+          mod ::= * aritexpr
+          aritexpr ::= * aritexpr SUMA term
+          aritexpr ::= * aritexpr RESTA term
+          aritexpr ::= * term
+          term ::= * term MUL factor
+          term ::= * term DIV factor
+          term ::= * term MOD factor
+          term ::= * factor
+          unary ::= * RESTA
+          unary ::= * NEGAR
+     (84) unary ::= *
+          factor ::= * unary constant
+          factor ::= * unary lvalue
+          factor ::= * unary method_call
+          factor ::= * unary OPENPAR condition CLOSEPAR
+
+                         RESTA shift-reduce 82     unary ::= RESTA
+                         NEGAR shift-reduce 83     unary ::= NEGAR
+                       bitwise shift        60     
+                           mod shift        95     
+                      aritexpr shift        66     
+                          term shift        54     
+                        factor shift-reduce 81     term ::= factor
+                         unary shift        28     
+                     {default} reduce       84     unary ::=
+
+State 20:
+          logic_expr ::= bitwise MENORIGUAL * bitwise
+          bitwise ::= * bitwise SHL mod
+          bitwise ::= * bitwise SHR mod
+          bitwise ::= * mod
+          mod ::= * mod MOD aritexpr
+          mod ::= * aritexpr
+          aritexpr ::= * aritexpr SUMA term
+          aritexpr ::= * aritexpr RESTA term
+          aritexpr ::= * term
+          term ::= * term MUL factor
+          term ::= * term DIV factor
+          term ::= * term MOD factor
+          term ::= * factor
+          unary ::= * RESTA
+          unary ::= * NEGAR
+     (84) unary ::= *
+          factor ::= * unary constant
+          factor ::= * unary lvalue
+          factor ::= * unary method_call
+          factor ::= * unary OPENPAR condition CLOSEPAR
+
+                         RESTA shift-reduce 82     unary ::= RESTA
+                         NEGAR shift-reduce 83     unary ::= NEGAR
+                       bitwise shift        61     
+                           mod shift        95     
+                      aritexpr shift        66     
+                          term shift        54     
+                        factor shift-reduce 81     term ::= factor
+                         unary shift        28     
+                     {default} reduce       84     unary ::=
+
+State 21:
+          logic_expr ::= bitwise MAYORIGUAL * bitwise
+          bitwise ::= * bitwise SHL mod
+          bitwise ::= * bitwise SHR mod
+          bitwise ::= * mod
+          mod ::= * mod MOD aritexpr
+          mod ::= * aritexpr
+          aritexpr ::= * aritexpr SUMA term
+          aritexpr ::= * aritexpr RESTA term
+          aritexpr ::= * term
+          term ::= * term MUL factor
+          term ::= * term DIV factor
+          term ::= * term MOD factor
+          term ::= * factor
+          unary ::= * RESTA
+          unary ::= * NEGAR
+     (84) unary ::= *
+          factor ::= * unary constant
+          factor ::= * unary lvalue
+          factor ::= * unary method_call
+          factor ::= * unary OPENPAR condition CLOSEPAR
+
+                         RESTA shift-reduce 82     unary ::= RESTA
+                         NEGAR shift-reduce 83     unary ::= NEGAR
+                       bitwise shift        62     
+                           mod shift        95     
+                      aritexpr shift        66     
+                          term shift        54     
+                        factor shift-reduce 81     term ::= factor
+                         unary shift        28     
+                     {default} reduce       84     unary ::=
+
+State 22:
+          logic_expr ::= bitwise MENOR * bitwise
+          bitwise ::= * bitwise SHL mod
+          bitwise ::= * bitwise SHR mod
+          bitwise ::= * mod
+          mod ::= * mod MOD aritexpr
+          mod ::= * aritexpr
+          aritexpr ::= * aritexpr SUMA term
+          aritexpr ::= * aritexpr RESTA term
+          aritexpr ::= * term
+          term ::= * term MUL factor
+          term ::= * term DIV factor
+          term ::= * term MOD factor
+          term ::= * factor
+          unary ::= * RESTA
+          unary ::= * NEGAR
+     (84) unary ::= *
+          factor ::= * unary constant
+          factor ::= * unary lvalue
+          factor ::= * unary method_call
+          factor ::= * unary OPENPAR condition CLOSEPAR
+
+                         RESTA shift-reduce 82     unary ::= RESTA
+                         NEGAR shift-reduce 83     unary ::= NEGAR
+                       bitwise shift        63     
+                           mod shift        95     
+                      aritexpr shift        66     
+                          term shift        54     
+                        factor shift-reduce 81     term ::= factor
+                         unary shift        28     
+                     {default} reduce       84     unary ::=
+
+State 23:
+          logic_expr ::= bitwise MAYOR * bitwise
+          bitwise ::= * bitwise SHL mod
+          bitwise ::= * bitwise SHR mod
+          bitwise ::= * mod
+          mod ::= * mod MOD aritexpr
+          mod ::= * aritexpr
+          aritexpr ::= * aritexpr SUMA term
+          aritexpr ::= * aritexpr RESTA term
+          aritexpr ::= * term
+          term ::= * term MUL factor
+          term ::= * term DIV factor
+          term ::= * term MOD factor
+          term ::= * factor
+          unary ::= * RESTA
+          unary ::= * NEGAR
+     (84) unary ::= *
+          factor ::= * unary constant
+          factor ::= * unary lvalue
+          factor ::= * unary method_call
+          factor ::= * unary OPENPAR condition CLOSEPAR
+
+                         RESTA shift-reduce 82     unary ::= RESTA
+                         NEGAR shift-reduce 83     unary ::= NEGAR
+                       bitwise shift        70     
+                           mod shift        95     
+                      aritexpr shift        66     
+                          term shift        54     
+                        factor shift-reduce 81     term ::= factor
+                         unary shift        28     
+                     {default} reduce       84     unary ::=
+
+State 24:
           program ::= KWCLASS ID OPENCUR field_decl * methods_field CLOSECUR
           field_decl ::= field_decl * decl SEMICOLON
           decl ::= * type list_decl
@@ -632,230 +1003,95 @@ State 16:
                         KWBOOL reduce       18      ** Parsing conflict **
                         KWVOID shift-reduce 21     method_type ::= KWVOID
                         KWVOID reduce       18      ** Parsing conflict **
-                 methods_field shift        26     
-                          decl shift        74     
-                          type shift        42     
+                 methods_field shift        29     
+                          decl shift        106    
+                          type shift        45     
                    sub_program shift-reduce 17     methods_field ::= sub_program
-                   method_type shift        99     
+                   method_type shift        108    
                      {default} reduce       18     methods_field ::=
 
-State 17:
-          condition ::= logic_expr OR * logic_expr
-          logic_expr ::= * aritexpr MAYOR aritexpr
-          logic_expr ::= * aritexpr MENOR aritexpr
-          logic_expr ::= * aritexpr MAYORIGUAL aritexpr
-          logic_expr ::= * aritexpr MENORIGUAL aritexpr
-          logic_expr ::= * aritexpr IGUAL aritexpr
-          logic_expr ::= * aritexpr DISTINTO aritexpr
-          logic_expr ::= * aritexpr
-          aritexpr ::= * aritexpr SUMA term
-          aritexpr ::= * aritexpr RESTA term
-          aritexpr ::= * term
-          term ::= * term MUL factor
-          term ::= * term DIV factor
-          term ::= * term MOD factor
-          term ::= * factor
-          unary ::= * RESTA
-          unary ::= * NEGAR
-     (79) unary ::= *
-          factor ::= * unary constant
-          factor ::= * unary lvalue
-          factor ::= * unary method_call
-          factor ::= * unary OPENPAR condition CLOSEPAR
-
-                         RESTA shift-reduce 77     unary ::= RESTA
-                         NEGAR shift-reduce 78     unary ::= NEGAR
-                    logic_expr shift-reduce 62     condition ::= logic_expr OR logic_expr
-                      aritexpr shift        49     
-                          term shift        51     
-                        factor shift-reduce 76     term ::= factor
-                         unary shift        25     
-                     {default} reduce       79     unary ::=
-
-State 18:
-          condition ::= logic_expr AND * logic_expr
-          logic_expr ::= * aritexpr MAYOR aritexpr
-          logic_expr ::= * aritexpr MENOR aritexpr
-          logic_expr ::= * aritexpr MAYORIGUAL aritexpr
-          logic_expr ::= * aritexpr MENORIGUAL aritexpr
-          logic_expr ::= * aritexpr IGUAL aritexpr
-          logic_expr ::= * aritexpr DISTINTO aritexpr
-          logic_expr ::= * aritexpr
-          aritexpr ::= * aritexpr SUMA term
-          aritexpr ::= * aritexpr RESTA term
-          aritexpr ::= * term
-          term ::= * term MUL factor
-          term ::= * term DIV factor
-          term ::= * term MOD factor
-          term ::= * factor
-          unary ::= * RESTA
-          unary ::= * NEGAR
-     (79) unary ::= *
-          factor ::= * unary constant
-          factor ::= * unary lvalue
-          factor ::= * unary method_call
-          factor ::= * unary OPENPAR condition CLOSEPAR
-
-                         RESTA shift-reduce 77     unary ::= RESTA
-                         NEGAR shift-reduce 78     unary ::= NEGAR
-                    logic_expr shift-reduce 61     condition ::= logic_expr AND logic_expr
-                      aritexpr shift        49     
-                          term shift        51     
-                        factor shift-reduce 76     term ::= factor
-                         unary shift        25     
-                     {default} reduce       79     unary ::=
-
-State 19:
-          logic_expr ::= aritexpr DISTINTO * aritexpr
-          aritexpr ::= * aritexpr SUMA term
-          aritexpr ::= * aritexpr RESTA term
-          aritexpr ::= * term
-          term ::= * term MUL factor
-          term ::= * term DIV factor
-          term ::= * term MOD factor
-          term ::= * factor
-          unary ::= * RESTA
-          unary ::= * NEGAR
-     (79) unary ::= *
-          factor ::= * unary constant
-          factor ::= * unary lvalue
-          factor ::= * unary method_call
-          factor ::= * unary OPENPAR condition CLOSEPAR
-
-                         RESTA shift-reduce 77     unary ::= RESTA
-                         NEGAR shift-reduce 78     unary ::= NEGAR
-                      aritexpr shift        55     
-                          term shift        51     
-                        factor shift-reduce 76     term ::= factor
-                         unary shift        25     
-                     {default} reduce       79     unary ::=
-
-State 20:
-          logic_expr ::= aritexpr IGUAL * aritexpr
-          aritexpr ::= * aritexpr SUMA term
-          aritexpr ::= * aritexpr RESTA term
-          aritexpr ::= * term
-          term ::= * term MUL factor
-          term ::= * term DIV factor
-          term ::= * term MOD factor
-          term ::= * factor
-          unary ::= * RESTA
-          unary ::= * NEGAR
-     (79) unary ::= *
-          factor ::= * unary constant
-          factor ::= * unary lvalue
-          factor ::= * unary method_call
-          factor ::= * unary OPENPAR condition CLOSEPAR
-
-                         RESTA shift-reduce 77     unary ::= RESTA
-                         NEGAR shift-reduce 78     unary ::= NEGAR
-                      aritexpr shift        56     
-                          term shift        51     
-                        factor shift-reduce 76     term ::= factor
-                         unary shift        25     
-                     {default} reduce       79     unary ::=
-
-State 21:
-          logic_expr ::= aritexpr MENORIGUAL * aritexpr
-          aritexpr ::= * aritexpr SUMA term
-          aritexpr ::= * aritexpr RESTA term
-          aritexpr ::= * term
-          term ::= * term MUL factor
-          term ::= * term DIV factor
-          term ::= * term MOD factor
-          term ::= * factor
-          unary ::= * RESTA
-          unary ::= * NEGAR
-     (79) unary ::= *
-          factor ::= * unary constant
-          factor ::= * unary lvalue
-          factor ::= * unary method_call
-          factor ::= * unary OPENPAR condition CLOSEPAR
-
-                         RESTA shift-reduce 77     unary ::= RESTA
-                         NEGAR shift-reduce 78     unary ::= NEGAR
-                      aritexpr shift        57     
-                          term shift        51     
-                        factor shift-reduce 76     term ::= factor
-                         unary shift        25     
-                     {default} reduce       79     unary ::=
-
-State 22:
-          logic_expr ::= aritexpr MAYORIGUAL * aritexpr
-          aritexpr ::= * aritexpr SUMA term
-          aritexpr ::= * aritexpr RESTA term
-          aritexpr ::= * term
-          term ::= * term MUL factor
-          term ::= * term DIV factor
-          term ::= * term MOD factor
-          term ::= * factor
-          unary ::= * RESTA
-          unary ::= * NEGAR
-     (79) unary ::= *
-          factor ::= * unary constant
-          factor ::= * unary lvalue
-          factor ::= * unary method_call
-          factor ::= * unary OPENPAR condition CLOSEPAR
-
-                         RESTA shift-reduce 77     unary ::= RESTA
-                         NEGAR shift-reduce 78     unary ::= NEGAR
-                      aritexpr shift        58     
-                          term shift        51     
-                        factor shift-reduce 76     term ::= factor
-                         unary shift        25     
-                     {default} reduce       79     unary ::=
-
-State 23:
-          logic_expr ::= aritexpr MENOR * aritexpr
-          aritexpr ::= * aritexpr SUMA term
-          aritexpr ::= * aritexpr RESTA term
-          aritexpr ::= * term
-          term ::= * term MUL factor
-          term ::= * term DIV factor
-          term ::= * term MOD factor
-          term ::= * factor
-          unary ::= * RESTA
-          unary ::= * NEGAR
-     (79) unary ::= *
-          factor ::= * unary constant
-          factor ::= * unary lvalue
-          factor ::= * unary method_call
-          factor ::= * unary OPENPAR condition CLOSEPAR
-
-                         RESTA shift-reduce 77     unary ::= RESTA
-                         NEGAR shift-reduce 78     unary ::= NEGAR
-                      aritexpr shift        59     
-                          term shift        51     
-                        factor shift-reduce 76     term ::= factor
-                         unary shift        25     
-                     {default} reduce       79     unary ::=
-
-State 24:
-          logic_expr ::= aritexpr MAYOR * aritexpr
-          aritexpr ::= * aritexpr SUMA term
-          aritexpr ::= * aritexpr RESTA term
-          aritexpr ::= * term
-          term ::= * term MUL factor
-          term ::= * term DIV factor
-          term ::= * term MOD factor
-          term ::= * factor
-          unary ::= * RESTA
-          unary ::= * NEGAR
-     (79) unary ::= *
-          factor ::= * unary constant
-          factor ::= * unary lvalue
-          factor ::= * unary method_call
-          factor ::= * unary OPENPAR condition CLOSEPAR
-
-                         RESTA shift-reduce 77     unary ::= RESTA
-                         NEGAR shift-reduce 78     unary ::= NEGAR
-                      aritexpr shift        64     
-                          term shift        51     
-                        factor shift-reduce 76     term ::= factor
-                         unary shift        25     
-                     {default} reduce       79     unary ::=
-
 State 25:
+          bitwise ::= bitwise SHR * mod
+          mod ::= * mod MOD aritexpr
+          mod ::= * aritexpr
+          aritexpr ::= * aritexpr SUMA term
+          aritexpr ::= * aritexpr RESTA term
+          aritexpr ::= * term
+          term ::= * term MUL factor
+          term ::= * term DIV factor
+          term ::= * term MOD factor
+          term ::= * factor
+          unary ::= * RESTA
+          unary ::= * NEGAR
+     (84) unary ::= *
+          factor ::= * unary constant
+          factor ::= * unary lvalue
+          factor ::= * unary method_call
+          factor ::= * unary OPENPAR condition CLOSEPAR
+
+                         RESTA shift-reduce 82     unary ::= RESTA
+                         NEGAR shift-reduce 83     unary ::= NEGAR
+                           mod shift        86     
+                      aritexpr shift        66     
+                          term shift        54     
+                        factor shift-reduce 81     term ::= factor
+                         unary shift        28     
+                     {default} reduce       84     unary ::=
+
+State 26:
+          bitwise ::= bitwise SHL * mod
+          mod ::= * mod MOD aritexpr
+          mod ::= * aritexpr
+          aritexpr ::= * aritexpr SUMA term
+          aritexpr ::= * aritexpr RESTA term
+          aritexpr ::= * term
+          term ::= * term MUL factor
+          term ::= * term DIV factor
+          term ::= * term MOD factor
+          term ::= * factor
+          unary ::= * RESTA
+          unary ::= * NEGAR
+     (84) unary ::= *
+          factor ::= * unary constant
+          factor ::= * unary lvalue
+          factor ::= * unary method_call
+          factor ::= * unary OPENPAR condition CLOSEPAR
+
+                         RESTA shift-reduce 82     unary ::= RESTA
+                         NEGAR shift-reduce 83     unary ::= NEGAR
+                           mod shift        96     
+                      aritexpr shift        66     
+                          term shift        54     
+                        factor shift-reduce 81     term ::= factor
+                         unary shift        28     
+                     {default} reduce       84     unary ::=
+
+State 27:
+          mod ::= mod MOD * aritexpr
+          aritexpr ::= * aritexpr SUMA term
+          aritexpr ::= * aritexpr RESTA term
+          aritexpr ::= * term
+          term ::= * term MUL factor
+          term ::= * term DIV factor
+          term ::= * term MOD factor
+          term ::= * factor
+          unary ::= * RESTA
+          unary ::= * NEGAR
+     (84) unary ::= *
+          factor ::= * unary constant
+          factor ::= * unary lvalue
+          factor ::= * unary method_call
+          factor ::= * unary OPENPAR condition CLOSEPAR
+
+                         RESTA shift-reduce 82     unary ::= RESTA
+                         NEGAR shift-reduce 83     unary ::= NEGAR
+                      aritexpr shift        69     
+                          term shift        54     
+                        factor shift-reduce 81     term ::= factor
+                         unary shift        28     
+                     {default} reduce       84     unary ::=
+
+State 28:
           constant ::= * NUMBER
           constant ::= * KWTRUE
           constant ::= * KWFALSE
@@ -871,20 +1107,20 @@ State 25:
           factor ::= unary * method_call
           factor ::= unary * OPENPAR condition CLOSEPAR
 
-                            ID shift        63     
+                            ID shift        68     
                         NUMBER shift-reduce 13     constant ::= NUMBER
                         KWTRUE shift-reduce 14     constant ::= KWTRUE
                        KWFALSE shift-reduce 15     constant ::= KWFALSE
-                       OPENPAR shift        12     
+                       OPENPAR shift        11     
                            SOP shift        93     
                          SOPLN shift        92     
                            SOR shift        91     
                         RANDOM shift        89     
-                      constant shift-reduce 80     factor ::= unary constant
-                   method_call shift-reduce 82     factor ::= unary method_call
-                        lvalue shift-reduce 81     factor ::= unary lvalue
+                      constant shift-reduce 85     factor ::= unary constant
+                   method_call shift-reduce 87     factor ::= unary method_call
+                        lvalue shift-reduce 86     factor ::= unary lvalue
 
-State 26:
+State 29:
           program ::= KWCLASS ID OPENCUR field_decl methods_field * CLOSECUR
           type ::= * KWINT
           type ::= * KWBOOL
@@ -893,15 +1129,15 @@ State 26:
           method_type ::= * type
           method_type ::= * KWVOID
 
-                      CLOSECUR shift        100    
+                      CLOSECUR shift        109    
                          KWINT shift-reduce 9      type ::= KWINT
                         KWBOOL shift-reduce 10     type ::= KWBOOL
                         KWVOID shift-reduce 21     method_type ::= KWVOID
                           type shift-reduce 20     method_type ::= type
                    sub_program shift-reduce 16     methods_field ::= methods_field sub_program
-                   method_type shift        99     
+                   method_type shift        108    
 
-State 27:
+State 30:
           aritexpr ::= aritexpr RESTA * term
           term ::= * term MUL factor
           term ::= * term DIV factor
@@ -909,20 +1145,20 @@ State 27:
           term ::= * factor
           unary ::= * RESTA
           unary ::= * NEGAR
-     (79) unary ::= *
+     (84) unary ::= *
           factor ::= * unary constant
           factor ::= * unary lvalue
           factor ::= * unary method_call
           factor ::= * unary OPENPAR condition CLOSEPAR
 
-                         RESTA shift-reduce 77     unary ::= RESTA
-                         NEGAR shift-reduce 78     unary ::= NEGAR
-                          term shift        50     
-                        factor shift-reduce 76     term ::= factor
-                         unary shift        25     
-                     {default} reduce       79     unary ::=
+                         RESTA shift-reduce 82     unary ::= RESTA
+                         NEGAR shift-reduce 83     unary ::= NEGAR
+                          term shift        55     
+                        factor shift-reduce 81     term ::= factor
+                         unary shift        28     
+                     {default} reduce       84     unary ::=
 
-State 28:
+State 31:
           aritexpr ::= aritexpr SUMA * term
           term ::= * term MUL factor
           term ::= * term DIV factor
@@ -930,20 +1166,38 @@ State 28:
           term ::= * factor
           unary ::= * RESTA
           unary ::= * NEGAR
-     (79) unary ::= *
+     (84) unary ::= *
           factor ::= * unary constant
           factor ::= * unary lvalue
           factor ::= * unary method_call
           factor ::= * unary OPENPAR condition CLOSEPAR
 
-                         RESTA shift-reduce 77     unary ::= RESTA
-                         NEGAR shift-reduce 78     unary ::= NEGAR
-                          term shift        52     
-                        factor shift-reduce 76     term ::= factor
-                         unary shift        25     
-                     {default} reduce       79     unary ::=
+                         RESTA shift-reduce 82     unary ::= RESTA
+                         NEGAR shift-reduce 83     unary ::= NEGAR
+                          term shift        56     
+                        factor shift-reduce 81     term ::= factor
+                         unary shift        28     
+                     {default} reduce       84     unary ::=
 
-State 29:
+State 32:
+          field_decl ::= * field_decl decl SEMICOLON
+          field_decl ::= * decl SEMICOLON
+      (3) field_decl ::= *
+          decl ::= * type list_decl
+          type ::= * KWINT
+          type ::= * KWBOOL
+          block ::= OPENCUR * field_decl statements CLOSECUR
+
+                         KWINT shift-reduce 9      type ::= KWINT
+                         KWINT reduce       3       ** Parsing conflict **
+                        KWBOOL shift-reduce 10     type ::= KWBOOL
+                        KWBOOL reduce       3       ** Parsing conflict **
+                    field_decl shift        1      
+                          decl shift        75     
+                          type shift        51     
+                     {default} reduce       3      field_decl ::=
+
+State 33:
           program ::= KWCLASS ID OPENCUR * field_decl methods_field CLOSECUR
           field_decl ::= * field_decl decl SEMICOLON
           field_decl ::= * decl SEMICOLON
@@ -956,12 +1210,12 @@ State 29:
                          KWINT reduce       3       ** Parsing conflict **
                         KWBOOL shift-reduce 10     type ::= KWBOOL
                         KWBOOL reduce       3       ** Parsing conflict **
-                    field_decl shift        16     
-                          decl shift        67     
-                          type shift        41     
+                    field_decl shift        24     
+                          decl shift        75     
+                          type shift        51     
                      {default} reduce       3      field_decl ::=
 
-State 30:
+State 34:
           assign ::= * lvalue OPASSIGN condition
           for_st ::= KWFOR OPENPAR list_asignings SEMICOLON condition SEMICOLON * list_asignings CLOSEPAR block
           list_asignings ::= * list_asignings COMMA assign
@@ -969,12 +1223,12 @@ State 30:
           lvalue ::= * ID
           lvalue ::= * ID OPENBRA condition CLOSEBRA
 
-                            ID shift        77     
+                            ID shift        76     
                         assign shift-reduce 50     list_asignings ::= assign
-                        lvalue shift        84     
-                list_asignings shift        53     
+                        lvalue shift        83     
+                list_asignings shift        57     
 
-State 31:
+State 35:
           assign ::= * lvalue OPASSIGN condition
           for_st ::= KWFOR OPENPAR * list_asignings SEMICOLON condition SEMICOLON list_asignings CLOSEPAR block
           list_asignings ::= * list_asignings COMMA assign
@@ -982,60 +1236,60 @@ State 31:
           lvalue ::= * ID
           lvalue ::= * ID OPENBRA condition CLOSEBRA
 
-                            ID shift        77     
+                            ID shift        76     
                         assign shift-reduce 50     list_asignings ::= assign
-                        lvalue shift        84     
-                list_asignings shift        54     
+                        lvalue shift        83     
+                list_asignings shift        58     
 
-State 32:
+State 36:
           term ::= term MOD * factor
           unary ::= * RESTA
           unary ::= * NEGAR
-     (79) unary ::= *
+     (84) unary ::= *
           factor ::= * unary constant
           factor ::= * unary lvalue
           factor ::= * unary method_call
           factor ::= * unary OPENPAR condition CLOSEPAR
 
-                         RESTA shift-reduce 77     unary ::= RESTA
-                         NEGAR shift-reduce 78     unary ::= NEGAR
-                        factor shift-reduce 75     term ::= term MOD factor
-                         unary shift        25     
-                     {default} reduce       79     unary ::=
+                         RESTA shift-reduce 82     unary ::= RESTA
+                         NEGAR shift-reduce 83     unary ::= NEGAR
+                        factor shift-reduce 80     term ::= term MOD factor
+                         unary shift        28     
+                     {default} reduce       84     unary ::=
 
-State 33:
+State 37:
           term ::= term DIV * factor
           unary ::= * RESTA
           unary ::= * NEGAR
-     (79) unary ::= *
+     (84) unary ::= *
           factor ::= * unary constant
           factor ::= * unary lvalue
           factor ::= * unary method_call
           factor ::= * unary OPENPAR condition CLOSEPAR
 
-                         RESTA shift-reduce 77     unary ::= RESTA
-                         NEGAR shift-reduce 78     unary ::= NEGAR
-                        factor shift-reduce 74     term ::= term DIV factor
-                         unary shift        25     
-                     {default} reduce       79     unary ::=
+                         RESTA shift-reduce 82     unary ::= RESTA
+                         NEGAR shift-reduce 83     unary ::= NEGAR
+                        factor shift-reduce 79     term ::= term DIV factor
+                         unary shift        28     
+                     {default} reduce       84     unary ::=
 
-State 34:
+State 38:
           term ::= term MUL * factor
           unary ::= * RESTA
           unary ::= * NEGAR
-     (79) unary ::= *
+     (84) unary ::= *
           factor ::= * unary constant
           factor ::= * unary lvalue
           factor ::= * unary method_call
           factor ::= * unary OPENPAR condition CLOSEPAR
 
-                         RESTA shift-reduce 77     unary ::= RESTA
-                         NEGAR shift-reduce 78     unary ::= NEGAR
-                        factor shift-reduce 73     term ::= term MUL factor
-                         unary shift        25     
-                     {default} reduce       79     unary ::=
+                         RESTA shift-reduce 82     unary ::= RESTA
+                         NEGAR shift-reduce 83     unary ::= NEGAR
+                        factor shift-reduce 78     term ::= term MUL factor
+                         unary shift        28     
+                     {default} reduce       84     unary ::=
 
-State 35:
+State 39:
           type ::= * KWINT
           type ::= * KWBOOL
           sub_program ::= method_type ID OPENPAR * params CLOSEPAR block
@@ -1045,21 +1299,21 @@ State 35:
 
                          KWINT shift-reduce 9      type ::= KWINT
                         KWBOOL shift-reduce 10     type ::= KWBOOL
-                          type shift        75     
-                        params shift        66     
+                          type shift        73     
+                        params shift        72     
                      {default} reduce       24     params ::=
 
-State 36:
+State 40:
           assign ::= * lvalue OPASSIGN condition
           list_asignings ::= list_asignings COMMA * assign
           lvalue ::= * ID
           lvalue ::= * ID OPENBRA condition CLOSEBRA
 
-                            ID shift        77     
+                            ID shift        76     
                         assign shift-reduce 49     list_asignings ::= list_asignings COMMA assign
-                        lvalue shift        84     
+                        lvalue shift        83     
 
-State 37:
+State 41:
           init ::= OPASSIGN * constant
           constant ::= * NUMBER
           constant ::= * KWTRUE
@@ -1070,48 +1324,38 @@ State 37:
                        KWFALSE shift-reduce 15     constant ::= KWFALSE
                       constant shift-reduce 11     init ::= OPASSIGN constant
 
-State 38:
-          list_decl ::= ID * OPENBRA NUMBER CLOSEBRA
-          list_decl ::= ID * init
-          init ::= * OPASSIGN constant
-     (12) init ::= *
-
-                       OPENBRA shift        69     
-                      OPASSIGN shift        37     
-                          init shift-reduce 8      list_decl ::= ID init
-                     {default} reduce       12     init ::=
-
-State 39:
-          list_decl ::= list_decl COMMA ID * OPENBRA NUMBER CLOSEBRA
-          list_decl ::= list_decl COMMA ID * init
-          init ::= * OPASSIGN constant
-     (12) init ::= *
-
-                       OPENBRA shift        71     
-                      OPASSIGN shift        37     
-                          init shift-reduce 6      list_decl ::= list_decl COMMA ID init
-                     {default} reduce       12     init ::=
-
-State 40:
+State 42:
           type ::= * KWINT
           type ::= * KWBOOL
           params ::= params COMMA * type ID
 
                          KWINT shift-reduce 9      type ::= KWINT
                         KWBOOL shift-reduce 10     type ::= KWBOOL
-                          type shift        76     
+                          type shift        74     
 
-State 41:
-          decl ::= type * list_decl
-          list_decl ::= * list_decl COMMA ID OPENBRA NUMBER CLOSEBRA
-          list_decl ::= * list_decl COMMA ID init
-          list_decl ::= * ID OPENBRA NUMBER CLOSEBRA
-          list_decl ::= * ID init
+State 43:
+          list_decl ::= ID * OPENBRA NUMBER CLOSEBRA
+          list_decl ::= ID * init
+          init ::= * OPASSIGN constant
+     (12) init ::= *
 
-                            ID shift        38     
-                     list_decl shift        73     
+                       OPENBRA shift        101    
+                      OPASSIGN shift        41     
+                          init shift-reduce 8      list_decl ::= ID init
+                     {default} reduce       12     init ::=
 
-State 42:
+State 44:
+          list_decl ::= list_decl COMMA ID * OPENBRA NUMBER CLOSEBRA
+          list_decl ::= list_decl COMMA ID * init
+          init ::= * OPASSIGN constant
+     (12) init ::= *
+
+                       OPENBRA shift        103    
+                      OPASSIGN shift        41     
+                          init shift-reduce 6      list_decl ::= list_decl COMMA ID init
+                     {default} reduce       12     init ::=
+
+State 45:
           decl ::= type * list_decl
           list_decl ::= * list_decl COMMA ID OPENBRA NUMBER CLOSEBRA
           list_decl ::= * list_decl COMMA ID init
@@ -1119,332 +1363,331 @@ State 42:
           list_decl ::= * ID init
      (20) method_type ::= type *
 
-                            ID shift        38     
+                            ID shift        43     
                             ID reduce       20      ** Parsing conflict **
-                     list_decl shift        73     
-
-State 43:
-          block ::= * OPENCUR statements CLOSECUR
-          for_st ::= KWFOR OPENPAR list_asignings SEMICOLON condition SEMICOLON list_asignings CLOSEPAR * block
-
-                       OPENCUR shift        1      
-                         block shift-reduce 48     for_st ::= KWFOR OPENPAR list_asignings SEMICOLON condition SEMICOLON list_asignings CLOSEPAR block
-
-State 44:
-          block ::= * OPENCUR statements CLOSECUR
-          while ::= KWWHILE OPENPAR condition CLOSEPAR * block
-
-                       OPENCUR shift        1      
-                         block shift-reduce 47     while ::= KWWHILE OPENPAR condition CLOSEPAR block
-
-State 45:
-          block ::= * OPENCUR statements CLOSECUR
-          opt_else ::= KWELSE * block
-
-                       OPENCUR shift        1      
-                         block shift-reduce 45     opt_else ::= KWELSE block
+                     list_decl shift        105    
 
 State 46:
+          block ::= * OPENCUR field_decl statements CLOSECUR
+          for_st ::= KWFOR OPENPAR list_asignings SEMICOLON condition SEMICOLON list_asignings CLOSEPAR * block
+
+                       OPENCUR shift        32     
+                         block shift-reduce 48     for_st ::= KWFOR OPENPAR list_asignings SEMICOLON condition SEMICOLON list_asignings CLOSEPAR block
+
+State 47:
+          block ::= * OPENCUR field_decl statements CLOSECUR
+          while ::= KWWHILE OPENPAR condition CLOSEPAR * block
+
+                       OPENCUR shift        32     
+                         block shift-reduce 47     while ::= KWWHILE OPENPAR condition CLOSEPAR block
+
+State 48:
+          block ::= * OPENCUR field_decl statements CLOSECUR
+          opt_else ::= KWELSE * block
+
+                       OPENCUR shift        32     
+                         block shift-reduce 45     opt_else ::= KWELSE block
+
+State 49:
           if_st ::= KWIF OPENPAR condition CLOSEPAR block * opt_else
           opt_else ::= * KWELSE block
      (46) opt_else ::= *
 
-                        KWELSE shift        45     
+                        KWELSE shift        48     
                       opt_else shift-reduce 44     if_st ::= KWIF OPENPAR condition CLOSEPAR block opt_else
                      {default} reduce       46     opt_else ::=
 
-State 47:
-          block ::= * OPENCUR statements CLOSECUR
+State 50:
+          block ::= * OPENCUR field_decl statements CLOSECUR
           if_st ::= KWIF OPENPAR condition CLOSEPAR * block opt_else
 
-                       OPENCUR shift        1      
-                         block shift        46     
-
-State 48:
-          sub_program ::= method_type ID OPENPAR params CLOSEPAR * block
-          block ::= * OPENCUR statements CLOSECUR
-
-                       OPENCUR shift        1      
-                         block shift-reduce 19     sub_program ::= method_type ID OPENPAR params CLOSEPAR block
-
-State 49:
-          logic_expr ::= aritexpr * MAYOR aritexpr
-          logic_expr ::= aritexpr * MENOR aritexpr
-          logic_expr ::= aritexpr * MAYORIGUAL aritexpr
-          logic_expr ::= aritexpr * MENORIGUAL aritexpr
-          logic_expr ::= aritexpr * IGUAL aritexpr
-          logic_expr ::= aritexpr * DISTINTO aritexpr
-     (69) logic_expr ::= aritexpr *
-          aritexpr ::= aritexpr * SUMA term
-          aritexpr ::= aritexpr * RESTA term
-
-                         MAYOR shift        24     
-                         MENOR shift        23     
-                    MAYORIGUAL shift        22     
-                    MENORIGUAL shift        21     
-                         IGUAL shift        20     
-                      DISTINTO shift        19     
-                          SUMA shift        28     
-                         RESTA shift        27     
-                     {default} reduce       69     logic_expr ::= aritexpr
-
-State 50:
-     (71) aritexpr ::= aritexpr RESTA term *
-          term ::= term * MUL factor
-          term ::= term * DIV factor
-          term ::= term * MOD factor
-
-                           MUL shift        34     
-                           DIV shift        33     
-                           MOD shift        32     
-                     {default} reduce       71     aritexpr ::= aritexpr RESTA term
+                       OPENCUR shift        32     
+                         block shift        49     
 
 State 51:
-     (72) aritexpr ::= term *
-          term ::= term * MUL factor
-          term ::= term * DIV factor
-          term ::= term * MOD factor
+          decl ::= type * list_decl
+          list_decl ::= * list_decl COMMA ID OPENBRA NUMBER CLOSEBRA
+          list_decl ::= * list_decl COMMA ID init
+          list_decl ::= * ID OPENBRA NUMBER CLOSEBRA
+          list_decl ::= * ID init
 
-                           MUL shift        34     
-                           DIV shift        33     
-                           MOD shift        32     
-                     {default} reduce       72     aritexpr ::= term
+                            ID shift        43     
+                     list_decl shift        105    
 
 State 52:
-     (70) aritexpr ::= aritexpr SUMA term *
+          sub_program ::= method_type ID OPENPAR params CLOSEPAR * block
+          block ::= * OPENCUR field_decl statements CLOSECUR
+
+                       OPENCUR shift        32     
+                         block shift-reduce 19     sub_program ::= method_type ID OPENPAR params CLOSEPAR block
+
+State 53:
+          logic_expr ::= bitwise * MAYOR bitwise
+          logic_expr ::= bitwise * MENOR bitwise
+          logic_expr ::= bitwise * MAYORIGUAL bitwise
+          logic_expr ::= bitwise * MENORIGUAL bitwise
+          logic_expr ::= bitwise * IGUAL bitwise
+          logic_expr ::= bitwise * DISTINTO bitwise
+     (69) logic_expr ::= bitwise *
+          bitwise ::= bitwise * SHL mod
+          bitwise ::= bitwise * SHR mod
+
+                         MAYOR shift        23     
+                         MENOR shift        22     
+                    MAYORIGUAL shift        21     
+                    MENORIGUAL shift        20     
+                         IGUAL shift        19     
+                      DISTINTO shift        18     
+                           SHL shift        26     
+                           SHR shift        25     
+                     {default} reduce       69     logic_expr ::= bitwise
+
+State 54:
+     (77) aritexpr ::= term *
           term ::= term * MUL factor
           term ::= term * DIV factor
           term ::= term * MOD factor
 
-                           MUL shift        34     
-                           DIV shift        33     
-                           MOD shift        32     
-                     {default} reduce       70     aritexpr ::= aritexpr SUMA term
+                           MOD shift        36     
+                           MOD reduce       77      ** Parsing conflict **
+                           MUL shift        38     
+                           DIV shift        37     
+                     {default} reduce       77     aritexpr ::= term
 
-State 53:
+State 55:
+     (76) aritexpr ::= aritexpr RESTA term *
+          term ::= term * MUL factor
+          term ::= term * DIV factor
+          term ::= term * MOD factor
+
+                           MOD shift        36     
+                           MOD reduce       76      ** Parsing conflict **
+                           MUL shift        38     
+                           DIV shift        37     
+                     {default} reduce       76     aritexpr ::= aritexpr RESTA term
+
+State 56:
+     (75) aritexpr ::= aritexpr SUMA term *
+          term ::= term * MUL factor
+          term ::= term * DIV factor
+          term ::= term * MOD factor
+
+                           MOD shift        36     
+                           MOD reduce       75      ** Parsing conflict **
+                           MUL shift        38     
+                           DIV shift        37     
+                     {default} reduce       75     aritexpr ::= aritexpr SUMA term
+
+State 57:
           for_st ::= KWFOR OPENPAR list_asignings SEMICOLON condition SEMICOLON list_asignings * CLOSEPAR block
           list_asignings ::= list_asignings * COMMA assign
 
-                         COMMA shift        36     
-                      CLOSEPAR shift        43     
+                         COMMA shift        40     
+                      CLOSEPAR shift        46     
 
-State 54:
+State 58:
           for_st ::= KWFOR OPENPAR list_asignings * SEMICOLON condition SEMICOLON list_asignings CLOSEPAR block
           list_asignings ::= list_asignings * COMMA assign
 
-                     SEMICOLON shift        8      
-                         COMMA shift        36     
-
-State 55:
-     (68) logic_expr ::= aritexpr DISTINTO aritexpr *
-          aritexpr ::= aritexpr * SUMA term
-          aritexpr ::= aritexpr * RESTA term
-
-                          SUMA shift        28     
-                         RESTA shift        27     
-                     {default} reduce       68     logic_expr ::= aritexpr DISTINTO aritexpr
-
-State 56:
-     (67) logic_expr ::= aritexpr IGUAL aritexpr *
-          aritexpr ::= aritexpr * SUMA term
-          aritexpr ::= aritexpr * RESTA term
-
-                          SUMA shift        28     
-                         RESTA shift        27     
-                     {default} reduce       67     logic_expr ::= aritexpr IGUAL aritexpr
-
-State 57:
-     (66) logic_expr ::= aritexpr MENORIGUAL aritexpr *
-          aritexpr ::= aritexpr * SUMA term
-          aritexpr ::= aritexpr * RESTA term
-
-                          SUMA shift        28     
-                         RESTA shift        27     
-                     {default} reduce       66     logic_expr ::= aritexpr MENORIGUAL aritexpr
-
-State 58:
-     (65) logic_expr ::= aritexpr MAYORIGUAL aritexpr *
-          aritexpr ::= aritexpr * SUMA term
-          aritexpr ::= aritexpr * RESTA term
-
-                          SUMA shift        28     
-                         RESTA shift        27     
-                     {default} reduce       65     logic_expr ::= aritexpr MAYORIGUAL aritexpr
+                     SEMICOLON shift        7      
+                         COMMA shift        40     
 
 State 59:
-     (64) logic_expr ::= aritexpr MENOR aritexpr *
-          aritexpr ::= aritexpr * SUMA term
-          aritexpr ::= aritexpr * RESTA term
+     (68) logic_expr ::= bitwise DISTINTO bitwise *
+          bitwise ::= bitwise * SHL mod
+          bitwise ::= bitwise * SHR mod
 
-                          SUMA shift        28     
-                         RESTA shift        27     
-                     {default} reduce       64     logic_expr ::= aritexpr MENOR aritexpr
+                           SHL shift        26     
+                           SHR shift        25     
+                     {default} reduce       68     logic_expr ::= bitwise DISTINTO bitwise
 
 State 60:
+     (67) logic_expr ::= bitwise IGUAL bitwise *
+          bitwise ::= bitwise * SHL mod
+          bitwise ::= bitwise * SHR mod
+
+                           SHL shift        26     
+                           SHR shift        25     
+                     {default} reduce       67     logic_expr ::= bitwise IGUAL bitwise
+
+State 61:
+     (66) logic_expr ::= bitwise MENORIGUAL bitwise *
+          bitwise ::= bitwise * SHL mod
+          bitwise ::= bitwise * SHR mod
+
+                           SHL shift        26     
+                           SHR shift        25     
+                     {default} reduce       66     logic_expr ::= bitwise MENORIGUAL bitwise
+
+State 62:
+     (65) logic_expr ::= bitwise MAYORIGUAL bitwise *
+          bitwise ::= bitwise * SHL mod
+          bitwise ::= bitwise * SHR mod
+
+                           SHL shift        26     
+                           SHR shift        25     
+                     {default} reduce       65     logic_expr ::= bitwise MAYORIGUAL bitwise
+
+State 63:
+     (64) logic_expr ::= bitwise MENOR bitwise *
+          bitwise ::= bitwise * SHL mod
+          bitwise ::= bitwise * SHR mod
+
+                           SHL shift        26     
+                           SHR shift        25     
+                     {default} reduce       64     logic_expr ::= bitwise MENOR bitwise
+
+State 64:
           method_call ::= SOPLN OPENPAR arguments * CLOSEPAR
           arguments ::= arguments * COMMA argument
 
-                         COMMA shift        6      
+                         COMMA shift        5      
                       CLOSEPAR shift-reduce 41     method_call ::= SOPLN OPENPAR arguments CLOSEPAR
 
-State 61:
+State 65:
           method_call ::= SOP OPENPAR arguments * CLOSEPAR
           arguments ::= arguments * COMMA argument
 
-                         COMMA shift        6      
+                         COMMA shift        5      
                       CLOSEPAR shift-reduce 40     method_call ::= SOP OPENPAR arguments CLOSEPAR
 
-State 62:
+State 66:
+     (74) mod ::= aritexpr *
+          aritexpr ::= aritexpr * SUMA term
+          aritexpr ::= aritexpr * RESTA term
+
+                          SUMA shift        31     
+                         RESTA shift        30     
+                     {default} reduce       74     mod ::= aritexpr
+
+State 67:
           method_call ::= ID OPENPAR exprs_list * CLOSEPAR
           exprs_list ::= exprs_list * COMMA condition
 
-                         COMMA shift        15     
+                         COMMA shift        14     
                       CLOSEPAR shift-reduce 39     method_call ::= ID OPENPAR exprs_list CLOSEPAR
 
-State 63:
+State 68:
           method_call ::= ID * OPENPAR exprs_list CLOSEPAR
      (58) lvalue ::= ID *
           lvalue ::= ID * OPENBRA condition CLOSEBRA
 
-                       OPENBRA shift        14     
-                       OPENPAR shift        5      
+                       OPENBRA shift        13     
+                       OPENPAR shift        4      
                      {default} reduce       58     lvalue ::= ID
 
-State 64:
-     (63) logic_expr ::= aritexpr MAYOR aritexpr *
+State 69:
+     (73) mod ::= mod MOD aritexpr *
           aritexpr ::= aritexpr * SUMA term
           aritexpr ::= aritexpr * RESTA term
 
-                          SUMA shift        28     
-                         RESTA shift        27     
-                     {default} reduce       63     logic_expr ::= aritexpr MAYOR aritexpr
+                          SUMA shift        31     
+                         RESTA shift        30     
+                     {default} reduce       73     mod ::= mod MOD aritexpr
 
-State 65:
+State 70:
+     (63) logic_expr ::= bitwise MAYOR bitwise *
+          bitwise ::= bitwise * SHL mod
+          bitwise ::= bitwise * SHR mod
+
+                           SHL shift        26     
+                           SHR shift        25     
+                     {default} reduce       63     logic_expr ::= bitwise MAYOR bitwise
+
+State 71:
      (60) condition ::= logic_expr *
           condition ::= logic_expr * AND logic_expr
           condition ::= logic_expr * OR logic_expr
 
-                           AND shift        18     
-                            OR shift        17     
+                           AND shift        17     
+                            OR shift        16     
                      {default} reduce       60     condition ::= logic_expr
 
-State 66:
+State 72:
           sub_program ::= method_type ID OPENPAR params * CLOSEPAR block
           params ::= params * COMMA type ID
 
-                         COMMA shift        40     
-                      CLOSEPAR shift        48     
-
-State 67:
-          field_decl ::= decl * SEMICOLON
-
-                     SEMICOLON shift-reduce 2      field_decl ::= decl SEMICOLON
-
-State 68:
-          list_decl ::= ID OPENBRA NUMBER * CLOSEBRA
-
-                      CLOSEBRA shift-reduce 7      list_decl ::= ID OPENBRA NUMBER CLOSEBRA
-
-State 69:
-          list_decl ::= ID OPENBRA * NUMBER CLOSEBRA
-
-                        NUMBER shift        68     
-
-State 70:
-          list_decl ::= list_decl COMMA ID OPENBRA NUMBER * CLOSEBRA
-
-                      CLOSEBRA shift-reduce 5      list_decl ::= list_decl COMMA ID OPENBRA NUMBER CLOSEBRA
-
-State 71:
-          list_decl ::= list_decl COMMA ID OPENBRA * NUMBER CLOSEBRA
-
-                        NUMBER shift        70     
-
-State 72:
-          list_decl ::= list_decl COMMA * ID OPENBRA NUMBER CLOSEBRA
-          list_decl ::= list_decl COMMA * ID init
-
-                            ID shift        39     
+                         COMMA shift        42     
+                      CLOSEPAR shift        52     
 
 State 73:
-      (4) decl ::= type list_decl *
-          list_decl ::= list_decl * COMMA ID OPENBRA NUMBER CLOSEBRA
-          list_decl ::= list_decl * COMMA ID init
-
-                         COMMA shift        72     
-                     {default} reduce       4      decl ::= type list_decl
-
-State 74:
-          field_decl ::= field_decl decl * SEMICOLON
-
-                     SEMICOLON shift-reduce 1      field_decl ::= field_decl decl SEMICOLON
-
-State 75:
           params ::= type * ID
 
                             ID shift-reduce 23     params ::= type ID
 
-State 76:
+State 74:
           params ::= params COMMA type * ID
 
                             ID shift-reduce 22     params ::= params COMMA type ID
 
-State 77:
+State 75:
+          field_decl ::= decl * SEMICOLON
+
+                     SEMICOLON shift-reduce 2      field_decl ::= decl SEMICOLON
+
+State 76:
      (58) lvalue ::= ID *
           lvalue ::= ID * OPENBRA condition CLOSEBRA
 
-                       OPENBRA shift        14     
+                       OPENBRA shift        13     
                      {default} reduce       58     lvalue ::= ID
 
-State 78:
+State 77:
           for_st ::= KWFOR OPENPAR list_asignings SEMICOLON condition * SEMICOLON list_asignings CLOSEPAR block
 
-                     SEMICOLON shift        30     
+                     SEMICOLON shift        34     
 
-State 79:
+State 78:
           for_st ::= KWFOR * OPENPAR list_asignings SEMICOLON condition SEMICOLON list_asignings CLOSEPAR block
 
-                       OPENPAR shift        31     
+                       OPENPAR shift        35     
 
-State 80:
+State 79:
           while ::= KWWHILE OPENPAR condition * CLOSEPAR block
-
-                      CLOSEPAR shift        44     
-
-State 81:
-          while ::= KWWHILE * OPENPAR condition CLOSEPAR block
-
-                       OPENPAR shift        9      
-
-State 82:
-          if_st ::= KWIF OPENPAR condition * CLOSEPAR block opt_else
 
                       CLOSEPAR shift        47     
 
-State 83:
+State 80:
+          while ::= KWWHILE * OPENPAR condition CLOSEPAR block
+
+                       OPENPAR shift        8      
+
+State 81:
+          if_st ::= KWIF OPENPAR condition * CLOSEPAR block opt_else
+
+                      CLOSEPAR shift        50     
+
+State 82:
           if_st ::= KWIF * OPENPAR condition CLOSEPAR block opt_else
 
-                       OPENPAR shift        10     
+                       OPENPAR shift        9      
 
-State 84:
+State 83:
           assign ::= lvalue * OPASSIGN condition
 
-                      OPASSIGN shift        11     
+                      OPASSIGN shift        10     
 
-State 85:
+State 84:
           statement ::= KWCONTINUE * SEMICOLON
 
                      SEMICOLON shift-reduce 36     statement ::= KWCONTINUE SEMICOLON
 
-State 86:
+State 85:
           statement ::= KWBREAK * SEMICOLON
 
                      SEMICOLON shift-reduce 35     statement ::= KWBREAK SEMICOLON
 
+State 86:
+     (71) bitwise ::= bitwise SHR mod *
+          mod ::= mod * MOD aritexpr
+
+                           MOD shift        27     
+                     {default} reduce       71     bitwise ::= bitwise SHR mod
+
 State 87:
           factor ::= unary OPENPAR condition * CLOSEPAR
 
-                      CLOSEPAR shift-reduce 83     factor ::= unary OPENPAR condition CLOSEPAR
+                      CLOSEPAR shift-reduce 88     factor ::= unary OPENPAR condition CLOSEPAR
 
 State 88:
           method_call ::= RANDOM OPENPAR condition * CLOSEPAR
@@ -1454,7 +1697,7 @@ State 88:
 State 89:
           method_call ::= RANDOM * OPENPAR condition CLOSEPAR
 
-                       OPENPAR shift        13     
+                       OPENPAR shift        12     
 
 State 90:
           method_call ::= SOR OPENPAR * CLOSEPAR
@@ -1482,44 +1725,97 @@ State 94:
                       CLOSEBRA shift-reduce 59     lvalue ::= ID OPENBRA condition CLOSEBRA
 
 State 95:
+     (72) bitwise ::= mod *
+          mod ::= mod * MOD aritexpr
+
+                           MOD shift        27     
+                     {default} reduce       72     bitwise ::= mod
+
+State 96:
+     (70) bitwise ::= bitwise SHL mod *
+          mod ::= mod * MOD aritexpr
+
+                           MOD shift        27     
+                     {default} reduce       70     bitwise ::= bitwise SHL mod
+
+State 97:
           statement ::= KWRETURN condition * SEMICOLON
 
                      SEMICOLON shift-reduce 33     statement ::= KWRETURN condition SEMICOLON
 
-State 96:
+State 98:
           statement ::= method_call * SEMICOLON
 
                      SEMICOLON shift-reduce 30     statement ::= method_call SEMICOLON
 
-State 97:
+State 99:
           statement ::= assign * SEMICOLON
 
                      SEMICOLON shift-reduce 29     statement ::= assign SEMICOLON
 
-State 98:
+State 100:
+          list_decl ::= ID OPENBRA NUMBER * CLOSEBRA
+
+                      CLOSEBRA shift-reduce 7      list_decl ::= ID OPENBRA NUMBER CLOSEBRA
+
+State 101:
+          list_decl ::= ID OPENBRA * NUMBER CLOSEBRA
+
+                        NUMBER shift        100    
+
+State 102:
+          list_decl ::= list_decl COMMA ID OPENBRA NUMBER * CLOSEBRA
+
+                      CLOSEBRA shift-reduce 5      list_decl ::= list_decl COMMA ID OPENBRA NUMBER CLOSEBRA
+
+State 103:
+          list_decl ::= list_decl COMMA ID OPENBRA * NUMBER CLOSEBRA
+
+                        NUMBER shift        102    
+
+State 104:
+          list_decl ::= list_decl COMMA * ID OPENBRA NUMBER CLOSEBRA
+          list_decl ::= list_decl COMMA * ID init
+
+                            ID shift        44     
+
+State 105:
+      (4) decl ::= type list_decl *
+          list_decl ::= list_decl * COMMA ID OPENBRA NUMBER CLOSEBRA
+          list_decl ::= list_decl * COMMA ID init
+
+                         COMMA shift        104    
+                     {default} reduce       4      decl ::= type list_decl
+
+State 106:
+          field_decl ::= field_decl decl * SEMICOLON
+
+                     SEMICOLON shift-reduce 1      field_decl ::= field_decl decl SEMICOLON
+
+State 107:
           sub_program ::= method_type ID * OPENPAR params CLOSEPAR block
 
-                       OPENPAR shift        35     
+                       OPENPAR shift        39     
 
-State 99:
+State 108:
           sub_program ::= method_type * ID OPENPAR params CLOSEPAR block
 
-                            ID shift        98     
+                            ID shift        107    
 
-State 100:
+State 109:
       (0) program ::= KWCLASS ID OPENCUR field_decl methods_field CLOSECUR *
 
                              $ reduce       0      program ::= KWCLASS ID OPENCUR field_decl methods_field CLOSECUR
 
-State 101:
+State 110:
           program ::= KWCLASS ID * OPENCUR field_decl methods_field CLOSECUR
 
-                       OPENCUR shift        29     
+                       OPENCUR shift        33     
 
-State 102:
+State 111:
           program ::= KWCLASS * ID OPENCUR field_decl methods_field CLOSECUR
 
-                            ID shift        101    
+                            ID shift        110    
 
 ----------------------------------------------------
 Symbols:
@@ -1561,41 +1857,45 @@ Symbols:
    35: MENORIGUAL
    36: IGUAL
    37: DISTINTO
-   38: SUMA
-   39: RESTA
-   40: MUL
-   41: DIV
-   42: MOD
-   43: NEGAR
-   44: error:
-   45: program: KWCLASS
-   46: field_decl: <lambda> KWINT KWBOOL
-   47: methods_field: <lambda> KWINT KWBOOL KWVOID
-   48: decl: KWINT KWBOOL
-   49: type: KWINT KWBOOL
-   50: list_decl: ID
-   51: init: <lambda> OPASSIGN
-   52: constant: NUMBER KWTRUE KWFALSE
-   53: sub_program: KWINT KWBOOL KWVOID
-   54: method_type: KWINT KWBOOL KWVOID
-   55: params: <lambda> COMMA KWINT KWBOOL
-   56: block: OPENCUR
-   57: statements: <lambda> ID KWRETURN KWBREAK KWCONTINUE SOP SOPLN SOR RANDOM KWIF KWWHILE KWFOR
-   58: statement: ID KWRETURN KWBREAK KWCONTINUE SOP SOPLN SOR RANDOM KWIF KWWHILE KWFOR
-   59: assign: ID
-   60: method_call: ID SOP SOPLN SOR RANDOM
-   61: if_st: KWIF
-   62: while: KWWHILE
-   63: condition: ID NUMBER KWTRUE KWFALSE OPENPAR SOP SOPLN SOR RANDOM RESTA NEGAR
-   64: for_st: KWFOR
-   65: lvalue: ID
-   66: exprs_list: <lambda> ID COMMA NUMBER KWTRUE KWFALSE OPENPAR SOP SOPLN SOR RANDOM RESTA NEGAR
-   67: arguments: ID NUMBER KWTRUE KWFALSE OPENPAR SOP SOPLN SOR RANDOM STRLIT RESTA NEGAR
-   68: opt_else: <lambda> KWELSE
-   69: list_asignings: ID
-   70: argument: ID NUMBER KWTRUE KWFALSE OPENPAR SOP SOPLN SOR RANDOM STRLIT RESTA NEGAR
-   71: logic_expr: ID NUMBER KWTRUE KWFALSE OPENPAR SOP SOPLN SOR RANDOM RESTA NEGAR
-   72: aritexpr: ID NUMBER KWTRUE KWFALSE OPENPAR SOP SOPLN SOR RANDOM RESTA NEGAR
-   73: term: ID NUMBER KWTRUE KWFALSE OPENPAR SOP SOPLN SOR RANDOM RESTA NEGAR
-   74: factor: ID NUMBER KWTRUE KWFALSE OPENPAR SOP SOPLN SOR RANDOM RESTA NEGAR
-   75: unary: <lambda> RESTA NEGAR
+   38: SHL
+   39: SHR
+   40: MOD
+   41: SUMA
+   42: RESTA
+   43: MUL
+   44: DIV
+   45: NEGAR
+   46: error:
+   47: program: KWCLASS
+   48: field_decl: <lambda> KWINT KWBOOL
+   49: methods_field: <lambda> KWINT KWBOOL KWVOID
+   50: decl: KWINT KWBOOL
+   51: type: KWINT KWBOOL
+   52: list_decl: ID
+   53: init: <lambda> OPASSIGN
+   54: constant: NUMBER KWTRUE KWFALSE
+   55: sub_program: KWINT KWBOOL KWVOID
+   56: method_type: KWINT KWBOOL KWVOID
+   57: params: <lambda> COMMA KWINT KWBOOL
+   58: block: OPENCUR
+   59: statements: <lambda> ID KWRETURN KWBREAK KWCONTINUE SOP SOPLN SOR RANDOM KWIF KWWHILE KWFOR
+   60: statement: ID KWRETURN KWBREAK KWCONTINUE SOP SOPLN SOR RANDOM KWIF KWWHILE KWFOR
+   61: assign: ID
+   62: method_call: ID SOP SOPLN SOR RANDOM
+   63: if_st: KWIF
+   64: while: KWWHILE
+   65: condition: ID NUMBER KWTRUE KWFALSE OPENPAR SOP SOPLN SOR RANDOM RESTA NEGAR
+   66: for_st: KWFOR
+   67: lvalue: ID
+   68: exprs_list: <lambda> ID COMMA NUMBER KWTRUE KWFALSE OPENPAR SOP SOPLN SOR RANDOM RESTA NEGAR
+   69: arguments: ID NUMBER KWTRUE KWFALSE OPENPAR SOP SOPLN SOR RANDOM STRLIT RESTA NEGAR
+   70: opt_else: <lambda> KWELSE
+   71: list_asignings: ID
+   72: argument: ID NUMBER KWTRUE KWFALSE OPENPAR SOP SOPLN SOR RANDOM STRLIT RESTA NEGAR
+   73: logic_expr: ID NUMBER KWTRUE KWFALSE OPENPAR SOP SOPLN SOR RANDOM RESTA NEGAR
+   74: bitwise: ID NUMBER KWTRUE KWFALSE OPENPAR SOP SOPLN SOR RANDOM RESTA NEGAR
+   75: mod: ID NUMBER KWTRUE KWFALSE OPENPAR SOP SOPLN SOR RANDOM RESTA NEGAR
+   76: aritexpr: ID NUMBER KWTRUE KWFALSE OPENPAR SOP SOPLN SOR RANDOM RESTA NEGAR
+   77: term: ID NUMBER KWTRUE KWFALSE OPENPAR SOP SOPLN SOR RANDOM RESTA NEGAR
+   78: factor: ID NUMBER KWTRUE KWFALSE OPENPAR SOP SOPLN SOR RANDOM RESTA NEGAR
+   79: unary: <lambda> RESTA NEGAR
