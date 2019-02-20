@@ -72,7 +72,8 @@ int lex(input_t & in)
             dec = [0-9]*;
             hex = '0x' [0-9a-fA-F]+;
             id =[_|a-zA-Z][_|a-zA-Z|0-9]*;
-            dstr = "\"" [^"]* "\"";*/
+            dstr = "\"" [^"]* "\"";
+            char_const = "'" [^'] "'";*/
 
         if(state == 0){
             goto init;
@@ -81,7 +82,7 @@ int lex(input_t & in)
         }else if(state == 2){
             goto block_comment;
         }else if(state == 3){
-            goto block_comment;
+            goto str_literal;
         }
 
         line_comment:
@@ -119,6 +120,9 @@ int lex(input_t & in)
                 text=t;
                 return NUMBER; }
             hex { std::string t(in.tok,in.cur-in.tok);
+                text=t;
+                return NUMBER; }
+            char_const { std::string t(in.tok,in.cur-in.tok);
                 text=t;
                 return NUMBER; }
             dstr { std::string t(in.tok,in.cur-in.tok);

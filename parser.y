@@ -59,6 +59,7 @@ statement ::= KWRETURN SEMICOLON. {}
 statement ::= KWBREAK SEMICOLON. {}
 statement ::= KWCONTINUE SEMICOLON. {}
 statement ::= for_st. {}
+statement ::= block. {}
 
 assign ::= lvalue OPASSIGN condition. {}
 
