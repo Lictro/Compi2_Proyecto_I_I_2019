@@ -1,3 +1,6 @@
 *.o
 .DS_Store
 build/
+*.out
+decaf_ast.h
+decaf_ast.cpp
