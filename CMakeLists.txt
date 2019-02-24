@@ -22,8 +22,15 @@ add_custom_command (
   MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/parser.y
   )
 
+# Run treecc to generate the ast
+add_custom_command (
+  OUTPUT decaf_ast.h decaf_ast.cpp
+  COMMAND treecc ${PROJECT_SOURCE_DIR}/ast.tc
+  MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/ast.tc
+  )
+
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${PROJECT_SOURCE_DIR})
  
-add_executable(${PROJECT_NAME} decaf_parser.cpp decaf_lexer.cpp ../main.cpp)
+add_executable(${PROJECT_NAME} ../decaf_ast.cpp decaf_parser.cpp decaf_lexer.cpp ../main.cpp)
 

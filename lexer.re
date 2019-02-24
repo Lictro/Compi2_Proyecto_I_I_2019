@@ -156,20 +156,20 @@ int lex(input_t & in)
             ";" { text = ";"; return SEMICOLON; }
             "," { text = ","; return COMMA; }
             "=" { text = "="; return OPASSIGN; }
-            "+" { text = "+"; return SUMA; }
-            "-" { text = "-"; return RESTA; }
+            "+" { text = "+"; return ADD; }
+            "-" { text = "-"; return SUB; }
             "*" { text = "*"; return MUL; }
             "/" { text = "/"; return DIV; }
             "%" { text = "%"; return MOD; }
-            "!" { text = "!"; return NEGAR; }
-            "<" { text = "<"; return MAYOR; }
-            ">" { text = ">"; return MENOR; }
-            "<=" { text = "<="; return MAYORIGUAL; }
-            ">=" { text = ">="; return MENORIGUAL; }
+            "!" { text = "!"; return NEG; }
+            "<" { text = "<"; return LT; }
+            ">" { text = ">"; return GT; }
+            "<=" { text = "<="; return LE; }
+            ">=" { text = ">="; return GE; }
             "<<" { text = "<<"; return SHL; }
             ">>" { text = ">>"; return SHR; }
-            "==" { text = "=="; return IGUAL; }
-            "!=" { text = "!="; return DISTINTO; }
+            "==" { text = "=="; return EQ; }
+            "!=" { text = "!="; return NE; }
         */
     }
 }

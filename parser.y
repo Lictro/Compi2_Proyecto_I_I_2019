@@ -54,78 +54,73 @@ statement ::= assign SEMICOLON. {}
 statement ::= method_call SEMICOLON. {}
 statement ::= if_st. {}
 statement ::= while. {}
-statement ::= KWRETURN condition SEMICOLON. {}
+statement ::= KWRETURN expr SEMICOLON. {}
 statement ::= KWRETURN SEMICOLON. {}
 statement ::= KWBREAK SEMICOLON. {}
 statement ::= KWCONTINUE SEMICOLON. {}
 statement ::= for_st. {}
 statement ::= block. {}
 
-assign ::= lvalue OPASSIGN condition. {}
+assign ::= lvalue OPASSIGN expr. {}
 
 method_call ::= ID OPENPAR exprs_list CLOSEPAR. {}
 method_call ::= SOP OPENPAR arguments CLOSEPAR. {}
 method_call ::= SOPLN OPENPAR arguments CLOSEPAR. {}
 method_call ::= SOR OPENPAR CLOSEPAR. {}
-method_call ::= RANDOM OPENPAR condition CLOSEPAR. {}
+method_call ::= RANDOM OPENPAR expr CLOSEPAR. {}
 
-if_st ::= KWIF OPENPAR condition CLOSEPAR block opt_else. {}
+if_st ::= KWIF OPENPAR expr CLOSEPAR block opt_else. {}
 opt_else ::= KWELSE block. {}
 opt_else ::= . {}
 
-while ::= KWWHILE OPENPAR condition CLOSEPAR block. {}
+while ::= KWWHILE OPENPAR expr CLOSEPAR block. {}
 
-for_st ::= KWFOR OPENPAR list_asignings SEMICOLON condition SEMICOLON list_asignings CLOSEPAR block. {}
+for_st ::= KWFOR OPENPAR list_assignings SEMICOLON expr SEMICOLON list_assignings CLOSEPAR block. {}
 
-list_asignings ::= list_asignings COMMA assign. {}
-list_asignings ::= assign. {}
+list_assignings ::= list_assignings COMMA assign. {}
+list_assignings ::= assign. {}
 
-exprs_list ::= exprs_list COMMA condition. {}
-exprs_list ::= condition. {}
+exprs_list ::= exprs_list COMMA expr. {}
+exprs_list ::= expr. {}
 exprs_list ::= .
 
 arguments ::= arguments COMMA argument. {}
 arguments ::= argument. {}
 
-argument ::= condition. {}
+argument ::= expr. {}
 argument ::= STRLIT. {}
 
 lvalue ::= ID. {}
-lvalue ::= ID OPENBRA condition CLOSEBRA. {}
+lvalue ::= ID OPENBRA expr CLOSEBRA. {}
 
-condition ::= logic_expr. {}
-condition ::= logic_expr AND logic_expr. {}
-condition ::= logic_expr OR logic_expr. {}
+%left AND.
+%left OR.
+%nonassoc EQ NE GT GE LT LE.
+%left SHL SHR.
+%left MOD.
+%left ADD SUB.
+%left MUL DIV.
+%right NOT NEG.
 
-logic_expr ::= bitwise MAYOR bitwise. {}
-logic_expr ::= bitwise MENOR bitwise. {}
-logic_expr ::= bitwise MAYORIGUAL bitwise. {}
-logic_expr ::= bitwise MENORIGUAL bitwise. {}
-logic_expr ::= bitwise IGUAL bitwise. {}
-logic_expr ::= bitwise DISTINTO bitwise. {}
-logic_expr ::= bitwise. {}
-
-bitwise ::= bitwise SHL mod. {}
-bitwise ::= bitwise SHR mod. {}
-bitwise ::= mod. {}
-
-mod ::= mod MOD aritexpr. {}
-mod ::= aritexpr. {}
-
-aritexpr ::= aritexpr SUMA term. {}
-aritexpr ::= aritexpr RESTA term. {}
-aritexpr ::= term. {}
-
-term ::= term MUL factor. {}
-term ::= term DIV factor. {}
-term ::= term MOD factor. {}
-term ::= factor. {}
-
-unary ::= RESTA. {}
-unary ::= NEGAR. {}
-unary ::= . {}
-
-factor ::= unary constant. {}
-factor ::= unary lvalue. {}
-factor ::= unary method_call. {}
-factor ::= unary OPENPAR condition CLOSEPAR. {}
+expr ::= expr AND expr. {}
+expr ::= expr OR expr. {}
+expr ::= expr EQ expr. {}
+expr ::= expr NE expr. {}
+expr ::= expr GT expr. {}
+expr ::= expr GE expr. {}
+expr ::= expr LT expr. {}
+expr ::= expr LE expr. {}
+expr ::= expr SHL expr. {}
+expr ::= expr SHR expr. {}
+expr ::= expr MOD expr. {}
+expr ::= expr ADD expr. {}
+expr ::= expr SUB expr. {}
+expr ::= expr MUL expr. {}
+expr ::= expr DIV expr. {}
+expr ::= NOT expr. {}
+expr ::= NEG expr. {}
+expr ::= constant. {}
+expr ::= ID. {}
+expr ::= CHAR_CONST.{}
+expr ::= method_call. {}
+expr ::= OPENPAR expr CLOSEPAR. {}

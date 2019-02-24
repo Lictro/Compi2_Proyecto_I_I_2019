@@ -1,0 +1,129 @@
+%option lang = "C++"
+
+%header "decaf_ast.h"
+%output "decaf_ast.cpp"
+
+%decls %{
+#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <vector>
+#include <unordered_map>
+
+class ASTNode;
+
+typedef std::vector<ASTNode*> astn_list;
+typedef std::string string_t;    
+%}
+
+%{
+#include "decaf_ast.h"
+%}
+
+%node ASTNode %abstract %typedef
+%node Expr ASTNode %abstract %typedef
+%node Statement ASTNode %abstract %typedef
+
+%node AssignStatement Statement= {
+    Expr* lhs;
+    Expr* rhs;
+}
+
+%node MethodCallStatement Statement = {
+    string_t identifier;
+    ASTNode* args; 
+}
+
+%node ArgumentStatement Statement = {
+    %nocreate astn_list args;
+}
+
+%node ExprList Statement = {
+    %nocreate astn_list exprs;
+}
+
+%node IfStatement Statement = {
+    Expr* cond;
+    %nocreate ASTNode * true_blk;
+    %nocreate ASTNode * close_blk;
+}
+
+%node WhileStatement Statement = {
+    Expr* cond;
+    ASTNode * block;
+}
+
+%node ReturnStatement Statement = {
+    Expr* expr;
+}
+
+%node BreakStatement Statement = {}
+%node ContinueStatement Statement = {}
+
+%node ForStatement Statement = {
+    ASTNode* assignings;
+    ASTNode* block;
+    ASTNode* increments;
+}
+
+%node AssigningsStatement Statement = {
+    %nocreate astn_list args;
+}
+
+%node BlockStatement Statement = {
+    %nocreate astn_list stmts;
+}
+
+
+//Expressiones
+%node Binary Expr %abstract =
+{
+    Expr *expr1;
+    Expr *expr2;
+}
+
+%node Unary Expr %abstract =
+{
+    Expr *expr;
+}
+
+%node Number Expr = {
+    int number;
+}
+
+%node BoolConst Expr = {
+    int tOf;
+}
+
+%node CharConst Expr = {
+    int ch;
+}
+
+%node MethodCallExpr Expr =  {
+    string_t id;
+    ASTNode * exprs; 
+}
+
+%node Iden Expr = {
+    string_t id;
+}
+
+%node And_Expr Binary
+%node Or_Expr Binary
+%node EQ_Expr Binary
+%node NE_Expr Binary
+%node GT_Expr Binary
+%node GE_Expr Binary
+%node LT_Expr Binary
+%node LE_Expr Binary
+%node SHR_Expr Binary
+%node SRL_Expr Binary
+%node Mod_Expr Binary
+%node Add_Expr Binary
+%node Sub_Expr Binary
+%node Mul_Expr Binary
+%node Div_Expr Binary
+
+%node Not_Expr Unary
+%node Neg_Expr Unary
