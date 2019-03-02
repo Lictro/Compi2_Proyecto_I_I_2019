@@ -1,5 +1,4 @@
 #include "../lexer.h"
-#include "decaf_tokens.h"
 
 /*!max:re2c*/
 
@@ -120,10 +119,10 @@ int lex(input_t & in)
                 text=t;
                 return NUMBER; }
             hex { std::string t(in.tok,in.cur-in.tok);
-                text=t;
+                text=std::to_string(std::stoul(t, nullptr, 16));
                 return NUMBER; }
             char_const { std::string t(in.tok,in.cur-in.tok);
-                text=t;
+                text=std::to_string((int)t.at(1));
                 return NUMBER; }
             dstr { std::string t(in.tok,in.cur-in.tok);
                 text=t; return STRLIT; }

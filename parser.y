@@ -1,11 +1,12 @@
 %include {
     #include <assert.h>
     #include <iostream>
+    #include "decaf_ast.h"
 
     extern int lineno;
 }
 
-%token_type {int}
+%token_type {ASTNode*}
 
 %syntax_error {
     std::cout << "Syntax error at line " << lineno << std::endl;
@@ -16,33 +17,36 @@
     fprintf(stderr,"Giving up.  Parser is hopelessly lost...\n");
 }
 
-program ::= KWCLASS ID OPENCUR field_decl methods_field CLOSECUR. { std::cout << "PARSER COMPLETED!!!" << std::endl; }
-field_decl ::= field_decl decl SEMICOLON. {}
-field_decl ::= decl SEMICOLON. {} 
-field_decl ::= .
-decl ::= type list_decl. {}
-list_decl ::= list_decl COMMA ID OPENBRA NUMBER CLOSEBRA. {}
-list_decl ::= list_decl COMMA ID init. {}
-list_decl ::= ID OPENBRA NUMBER CLOSEBRA. {}
-list_decl ::= ID init. {}
-type ::= KWINT. {}
-type ::= KWBOOL. {}
-init ::= OPASSIGN constant. {}
-init ::= .
-constant ::= NUMBER. {}
-constant ::= KWTRUE. {}
-constant ::= KWFALSE. {}
+program ::= KWCLASS ID OPENCUR field_decl(B) methods_field(C) CLOSECUR. { std::cout << "PARSER COMPLETED!!!\n"<< B->toString() << "\n" << C->toString() << std::endl; }
+field_decl(A) ::= field_decl(B) decl(C) SEMICOLON. {A=B; dynamic_cast<DeclareField*>(A)->decla_list.push_back(C);}
+field_decl(A) ::= decl(B) SEMICOLON. {A = new DeclareField; dynamic_cast<DeclareField*>(A)->decla_list.push_back(B);} 
+field_decl(A) ::= . { A = nullptr; }
+decl(A) ::= type(B) list_decl(C). {A = new Declaration(B,C);}
 
-methods_field ::= methods_field sub_program. {}
-methods_field ::= sub_program. {}
-methods_field ::= .
-sub_program ::= method_type ID OPENPAR params CLOSEPAR block. {}
-method_type ::= type. {}
-method_type ::= KWVOID. {}
+list_decl(A) ::= list_decl(B) COMMA symbol(C). {A=B; dynamic_cast<DeclareList*>(A)->symbols.push_back(C);}
+list_decl(A) ::= symbol(B). {A = new DeclareList; dynamic_cast<DeclareList*>(A)->symbols.push_back(B);}
 
-params ::= params COMMA type ID. {}
-params ::= type ID. {}
-params ::= . {}
+symbol(A) ::= ID(B) OPENBRA NUMBER(C) CLOSEBRA. {A = new DeclareIdx(B->toString(), dynamic_cast<Number*>(C)->number);}
+symbol(A) ::= ID(B) init(C). {A = new DeclareSimple(B->toString(), C);}
+
+type(A) ::= KWINT. {A = new IntegerType();}
+type(A) ::= KWBOOL. {A = new BoolType();}
+init(A) ::= OPASSIGN constant(B). {A = B;}
+init(A) ::= . {A = nullptr; }
+constant(A) ::= NUMBER(B). {A = B;}
+constant(A) ::= KWTRUE. {A = new BoolConst(1);}
+constant(A) ::= KWFALSE. {A = new BoolConst(0);}
+
+methods_field(A) ::= methods_field(B) sub_program(C). {A = B; dynamic_cast<MethodsField*>(A)->methods.push_back(C);}
+methods_field(A) ::= sub_program(B). {A = new MethodsField; dynamic_cast<MethodsField*>(A)->methods.push_back(B);}
+methods_field(A) ::= . {A = nullptr;}
+sub_program(A)::= method_type(B) ID(C) OPENPAR params(D) CLOSEPAR block. {A = new Method(B, C->toString(), D, nullptr); }
+method_type(A) ::= type(B). {A = B;}
+method_type(A) ::= KWVOID. {A = new VoidType();}
+
+params(A) ::= params(B) COMMA type(C) ID(D). {A = B; dynamic_cast<Parameters*>(A)->params.push_back(new Param(C,D->toString()));}
+params(A) ::= type(B) ID(C). {A = new Parameters; dynamic_cast<Parameters*>(A)->params.push_back(new Param(B,C->toString()));}
+params(A) ::= . {A = nullptr;}
 
 block ::= OPENCUR field_decl statements CLOSECUR. {}
 
@@ -90,7 +94,7 @@ arguments ::= argument. {}
 argument ::= expr. {}
 argument ::= STRLIT. {}
 
-lvalue ::= ID. {}
+lvalue(A) ::= ID(B). { A = B; }
 lvalue ::= ID OPENBRA expr CLOSEBRA. {}
 
 %left AND.
@@ -120,7 +124,7 @@ expr ::= expr DIV expr. {}
 expr ::= NOT expr. {}
 expr ::= NEG expr. {}
 expr ::= constant. {}
-expr ::= ID. {}
+expr ::= lvalue. {}
 expr ::= CHAR_CONST.{}
 expr ::= method_call. {}
 expr ::= OPENPAR expr CLOSEPAR. {}

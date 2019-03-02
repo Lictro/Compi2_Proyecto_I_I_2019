@@ -9,9 +9,11 @@ class MyProgram {
     bool _var1 = true;
     bool _var2 = false;
 
+    int suma
+
     void main(){
         if(x==12){
-            _var1 = 'y';
+            _var1 = 0xf;
             x = suma(10,10);
             System.out.print(10,10,10);
             System.out.println(10,102);

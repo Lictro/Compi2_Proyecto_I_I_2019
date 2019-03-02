@@ -1,8 +1,5 @@
 %option lang = "C++"
 
-%header "decaf_ast.h"
-%output "decaf_ast.cpp"
-
 %decls %{
 #include <iostream>
 #include <stdio.h>
@@ -22,10 +19,72 @@ typedef std::string string_t;
 %}
 
 %node ASTNode %abstract %typedef
-%node Expr ASTNode %abstract %typedef
 %node Statement ASTNode %abstract %typedef
+%node Expr ASTNode %abstract %typedef
 
-%node AssignStatement Statement= {
+%node Program ASTNode = {
+    ASTNode* decl_field;
+    ASTNode* method_field;
+}
+
+%node Type ASTNode %abstract %typedef
+
+%node IntegerType Type = {}
+
+%node BoolType Type = {}
+
+%node VoidType Type = {}
+
+/*
+%node ArrayType Type = {
+    ASTNode* type;
+    Expr* number;
+}*/
+
+%node DeclareField ASTNode = {
+    %nocreate astn_list decla_list;
+}
+
+%node Declaration ASTNode = {
+    ASTNode* type;
+    ASTNode* declares;
+}
+
+%node DeclareList ASTNode = {
+    %nocreate astn_list symbols;
+}
+
+%node DeclareSimple ASTNode = {
+    string_t id;
+    ASTNode* init;
+}
+
+%node DeclareIdx ASTNode = {
+    string_t id;
+    int size;
+}
+
+%node MethodsField ASTNode = {
+    %nocreate astn_list methods;
+}
+
+%node Method ASTNode = {
+    ASTNode* type;
+    string_t id;
+    ASTNode* params;
+    ASTNode* block;
+}
+
+%node Parameters ASTNode = {
+    %nocreate astn_list params;
+}
+
+%node Param ASTNode = {
+    ASTNode* type;
+    string_t id;
+}
+
+%node AssignStatement Statement = {
     Expr* lhs;
     Expr* rhs;
 }
@@ -63,15 +122,17 @@ typedef std::string string_t;
 
 %node ForStatement Statement = {
     ASTNode* assignings;
-    ASTNode* block;
+    Expr* cond;
     ASTNode* increments;
+    ASTNode* block;
 }
 
 %node AssigningsStatement Statement = {
-    %nocreate astn_list args;
+    %nocreate astn_list assigns;
 }
 
 %node BlockStatement Statement = {
+    %nocreate ASTNode* decl_field;
     %nocreate astn_list stmts;
 }
 
@@ -81,6 +142,7 @@ typedef std::string string_t;
 {
     Expr *expr1;
     Expr *expr2;
+    string_t oper;
 }
 
 %node Unary Expr %abstract =
@@ -105,8 +167,13 @@ typedef std::string string_t;
     ASTNode * exprs; 
 }
 
-%node Iden Expr = {
+%node LValueSim Expr = {
     string_t id;
+}
+
+%node LValueIdx Expr = {
+    string_t id;
+    int idx;
 }
 
 %node And_Expr Binary
@@ -127,3 +194,210 @@ typedef std::string string_t;
 
 %node Not_Expr Unary
 %node Neg_Expr Unary
+
+%operation %virtual string_t toString(ASTNode *this)
+
+toString(Program){
+    return decl_field->toString();
+}
+
+toString(IntegerType){
+    return "int";
+}
+
+toString(BoolType){
+    return "bool";
+}
+
+toString(VoidType){
+    return "void";
+}
+
+toString(DeclareField){
+    string_t field = decla_list[0]->toString();
+    for(int i = 1; i < decla_list.size(); i++){
+        field += ";\n" + decla_list[i]->toString();
+    }
+    return field;
+}
+
+toString(Declaration){
+    return type->toString() + " " + declares->toString();
+}
+
+toString(DeclareList){
+    string_t ids;
+    for(int i = 0; i < symbols.size(); i++){
+        ids += symbols[i]->toString() + ", ";
+    }
+    ids.erase(ids.length()-2);
+    return ids;
+}
+
+toString(DeclareSimple){
+    string_t initial;
+    if(init != nullptr){
+        initial = " = " + init->toString();
+    }
+    return id + initial;
+}
+
+toString(DeclareIdx){
+    return id + "[" + std::to_string(size) + "]";
+}
+
+toString(MethodsField){
+    string_t methods_str;
+    for(int i = 0; i < methods.size(); i++){
+        methods_str += methods[i]->toString() + "\n";
+    }
+    return methods_str;
+}
+
+toString(Method){
+    string_t methods_str = type->toString();
+    methods_str += " " + id + "(";
+    if(params != nullptr){
+        methods_str += params->toString() + ")";
+    }
+    if(block != nullptr){
+        methods_str += block->toString();
+    }else{
+        methods_str += "{}";
+    }
+    return methods_str;
+}
+
+toString(Parameters){
+    string_t params_str = params[0]->toString();
+    for(int i = 1; i < params.size(); i++){
+        params_str += ", " + params[i]->toString();
+    }
+    return params_str;
+}
+
+toString(Param){
+    return type->toString() + " " + id;
+}
+
+toString(AssignStatement){
+    return lhs->toString() + " = " + rhs->toString() + ";";
+}
+
+toString(MethodCallStatement){
+    string_t args_str;
+    args_str = args->toString();
+    return identifier + "(" + args_str + ")";
+}
+
+toString(ArgumentStatement){
+    string_t args_str;
+    for(int i = 0; i < args.size(); i++){
+        args_str += args[i]->toString() + ", ";
+    }
+    return args_str;
+}
+
+toString(ExprList){
+    string_t exprs_str;
+    for(int i = 0; i < exprs.size(); i++){
+        exprs_str += exprs[i]->toString() + ", ";
+    }
+    return exprs_str;
+}
+
+toString(IfStatement){
+    string_t str = "if("+cond->toString()+"){\n";
+    str += true_blk->toString() + "}";
+    if(close_blk != nullptr){
+        str += "else{\n"+close_blk->toString() + "}";
+    }
+    return str;
+}
+
+toString(WhileStatement){
+    string_t str = "while("+cond->toString()+"){\n";
+    str += block->toString() + "}";
+    return str;
+}
+
+toString(ReturnStatement){
+    if(expr == nullptr){
+        return "return;";
+    }
+    return "return " + expr->toString()+ ";";
+}
+
+toString(BreakStatement){
+    return "break;";
+}
+
+toString(ContinueStatement){
+    return "continue;";
+}
+
+toString(ForStatement){
+    string_t str = "for("+assignings->toString()+";"+cond->toString()+";";
+    str += increments->toString()+"){\n";
+    str += block->toString() + "}";
+    return str;
+}
+
+toString(AssigningsStatement){
+    string_t str;
+    for(int i = 0; i < assigns.size(); i++){
+        str += assigns[i]->toString() + ", ";
+    }
+    return str;
+}
+
+toString(BlockStatement){
+    string_t str = decl_field->toString()+"\n";
+    for(int i = 0; i < stmts.size(); i++){
+        str += stmts[i]->toString() + "\n";
+    }
+    return str;
+}
+
+//Expressiones
+
+toString(Binary){
+    return expr1->toString() + oper + expr2->toString();
+}
+
+toString(Not_Expr){
+    return "!" + expr->toString();
+}
+
+toString(Neg_Expr){
+    return "-" + expr->toString();
+}
+
+toString(Number){
+    return std::to_string(number);
+}
+
+toString(CharConst){
+    return std::to_string(ch);
+}
+
+toString(BoolConst){
+    if(tOf){
+        return "true";
+    }
+    return "false";
+}
+
+toString(MethodCallExpr){
+    string_t args_str;
+    args_str = exprs->toString();
+    return id + "(" + args_str + ")";
+}
+
+toString(LValueSim){
+    return id;
+}
+
+toString(LValueIdx){
+    return id + "(" + std::to_string(idx) + ")";
+}
