@@ -20,6 +20,8 @@ void parse(input_t in) {
             Parse(parser, tk, new LValueSim(text));
         }else if(tk == NUMBER){
             Parse(parser, tk, new Number(std::stoi(text)));
+        }else if(tk == STRLIT){
+            Parse(parser, tk, new StrLiteral(text));
         }else{
             Parse(parser, tk, nullptr);
         }

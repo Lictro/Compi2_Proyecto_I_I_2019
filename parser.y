@@ -40,7 +40,7 @@ constant(A) ::= KWFALSE. {A = new BoolConst(0);}
 methods_field(A) ::= methods_field(B) sub_program(C). {A = B; dynamic_cast<MethodsField*>(A)->methods.push_back(C);}
 methods_field(A) ::= sub_program(B). {A = new MethodsField; dynamic_cast<MethodsField*>(A)->methods.push_back(B);}
 methods_field(A) ::= . {A = nullptr;}
-sub_program(A)::= method_type(B) ID(C) OPENPAR params(D) CLOSEPAR block. {A = new Method(B, C->toString(), D, nullptr); }
+sub_program(A)::= method_type(B) ID(C) OPENPAR params(D) CLOSEPAR block(E). {A = new Method(B, C->toString(), D, E); }
 method_type(A) ::= type(B). {A = B;}
 method_type(A) ::= KWVOID. {A = new VoidType();}
 
@@ -48,15 +48,15 @@ params(A) ::= params(B) COMMA type(C) ID(D). {A = B; dynamic_cast<Parameters*>(A
 params(A) ::= type(B) ID(C). {A = new Parameters; dynamic_cast<Parameters*>(A)->params.push_back(new Param(B,C->toString()));}
 params(A) ::= . {A = nullptr;}
 
-block ::= OPENCUR field_decl statements CLOSECUR. {}
+block(A) ::= OPENCUR field_decl(B) statements(C) CLOSECUR. {A = C; dynamic_cast<BlockStatement*>(A)->decl_field = B;}
 
-statements ::= statements statement. {}
-statements ::= statement.
-statements ::= .
+statements(A) ::= statements(B) statement(C). {A=B; dynamic_cast<BlockStatement*>(B)->stmts.push_back(C);}
+statements(A) ::= statement(B). {A = new BlockStatement; dynamic_cast<BlockStatement*>(A)->stmts.push_back(B);}
+statements(A) ::= . {A = new BlockStatement;}
 
-statement ::= assign SEMICOLON. {}
-statement ::= method_call SEMICOLON. {}
-statement ::= if_st. {}
+statement(A) ::= assign(B) SEMICOLON. {A = B;}
+statement(A) ::= method_call(B) SEMICOLON. {A = B;}
+statement(A) ::= if_st(B). {A = B;}
 statement ::= while. {}
 statement ::= KWRETURN expr SEMICOLON. {}
 statement ::= KWRETURN SEMICOLON. {}
@@ -65,17 +65,17 @@ statement ::= KWCONTINUE SEMICOLON. {}
 statement ::= for_st. {}
 statement ::= block. {}
 
-assign ::= lvalue OPASSIGN expr. {}
+assign(A) ::= lvalue(B) OPASSIGN expr(C). {A = new AssignStatement(B,C);}
 
-method_call ::= ID OPENPAR exprs_list CLOSEPAR. {}
-method_call ::= SOP OPENPAR arguments CLOSEPAR. {}
-method_call ::= SOPLN OPENPAR arguments CLOSEPAR. {}
-method_call ::= SOR OPENPAR CLOSEPAR. {}
-method_call ::= RANDOM OPENPAR expr CLOSEPAR. {}
+method_call(A) ::= ID(I) OPENPAR exprs_list(B) CLOSEPAR. {A = new MethodCallStatement(I->toString(), B);}
+method_call(A) ::= SOP OPENPAR arguments(B) CLOSEPAR. {A = new MethodCallStatement("SOP",B);}
+method_call(A) ::= SOPLN OPENPAR arguments(B) CLOSEPAR. {A = new MethodCallStatement("SOPLN", B);}
+method_call(A) ::= SOR OPENPAR CLOSEPAR. {A = new MethodCallStatement("SOR", nullptr);}
+method_call(A) ::= RANDOM OPENPAR expr(B) CLOSEPAR. {A = new MethodCallStatement("RANDOM",B);}
 
-if_st ::= KWIF OPENPAR expr CLOSEPAR block opt_else. {}
-opt_else ::= KWELSE block. {}
-opt_else ::= . {}
+if_st(A) ::= KWIF OPENPAR expr(B) CLOSEPAR block(C) opt_else(D). {A = new IfStatement(B,C,D);}
+opt_else(A) ::= KWELSE block(B). {A = B;}
+opt_else(A) ::= . {A = nullptr;}
 
 while ::= KWWHILE OPENPAR expr CLOSEPAR block. {}
 
@@ -84,18 +84,15 @@ for_st ::= KWFOR OPENPAR list_assignings SEMICOLON expr SEMICOLON list_assigning
 list_assignings ::= list_assignings COMMA assign. {}
 list_assignings ::= assign. {}
 
-exprs_list ::= exprs_list COMMA expr. {}
-exprs_list ::= expr. {}
-exprs_list ::= .
+exprs_list(A) ::= exprs_list(B) COMMA expr(C). {A = B; dynamic_cast<ExprList*>(A)->exprs.push_back(C);}
+exprs_list(A) ::= expr(B). {A = new ExprList; dynamic_cast<ExprList*>(A)->exprs.push_back(B);}
+exprs_list(A) ::= . {A = nullptr;}
 
-arguments ::= arguments COMMA argument. {}
-arguments ::= argument. {}
+arguments(A) ::= arguments(B) COMMA argument(C). {A = B; dynamic_cast<ArgumentsList*>(A)->args.push_back(C);}
+arguments(A) ::= argument(B). {A = new ArgumentsList; dynamic_cast<ArgumentsList*>(A)->args.push_back(B);}
 
-argument ::= expr. {}
-argument ::= STRLIT. {}
-
-lvalue(A) ::= ID(B). { A = B; }
-lvalue ::= ID OPENBRA expr CLOSEBRA. {}
+argument(A) ::= expr(B). {A = B;}
+argument(A) ::= STRLIT(B). {A = B;}
 
 %left AND.
 %left OR.
@@ -106,25 +103,36 @@ lvalue ::= ID OPENBRA expr CLOSEBRA. {}
 %left MUL DIV.
 %right NOT NEG.
 
-expr ::= expr AND expr. {}
-expr ::= expr OR expr. {}
-expr ::= expr EQ expr. {}
-expr ::= expr NE expr. {}
-expr ::= expr GT expr. {}
-expr ::= expr GE expr. {}
-expr ::= expr LT expr. {}
-expr ::= expr LE expr. {}
-expr ::= expr SHL expr. {}
-expr ::= expr SHR expr. {}
-expr ::= expr MOD expr. {}
-expr ::= expr ADD expr. {}
-expr ::= expr SUB expr. {}
-expr ::= expr MUL expr. {}
-expr ::= expr DIV expr. {}
-expr ::= NOT expr. {}
-expr ::= NEG expr. {}
-expr ::= constant. {}
-expr ::= lvalue. {}
-expr ::= CHAR_CONST.{}
-expr ::= method_call. {}
-expr ::= OPENPAR expr CLOSEPAR. {}
+%type expr {Expr*}
+%type method_expr {Expr*}
+%type lvalue {Expr*}
+
+lvalue(A) ::= ID(B). { A = dynamic_cast<Expr*>(B); }
+lvalue(A) ::= ID(B) OPENBRA expr(C) CLOSEBRA. {A = new LValueIdx(B->toString(), C);}
+
+expr(A) ::= expr(B) AND expr(C). {A= new And_Expr(B, C, "&&");}
+expr(A) ::= expr(B) OR expr(C). {A= new Or_Expr(B, C, "||");}
+expr(A) ::= expr(B) EQ expr(C). {A= new EQ_Expr(B, C, "==");}
+expr(A) ::= expr(B) NE expr(C). {A= new NE_Expr(B, C, "!=");}
+expr(A) ::= expr(B) GT expr(C). {A= new GT_Expr(B, C, ">");}
+expr(A) ::= expr(B) GE expr(C). {A= new GE_Expr(B, C, ">=");}
+expr(A) ::= expr(B) LT expr(C). {A= new LT_Expr(B, C, "<");}
+expr(A) ::= expr(B) LE expr(C). {A= new LE_Expr(B, C, "<=");}
+expr(A) ::= expr(B) SHL expr(C). {A= new SHL_Expr(B, C, "<<");}
+expr(A) ::= expr(B) SHR expr(C). {A= new SHR_Expr(B, C, ">>");}
+expr(A) ::= expr(B) MOD expr(C). {A= new Mod_Expr(B, C, "%");}
+expr(A) ::= expr(B) ADD expr(C). {A= new Add_Expr(B, C, "+");}
+expr(A) ::= expr(B) SUB expr(C). {A= new Sub_Expr(B, C, "-");}
+expr(A) ::= expr(B) MUL expr(C). {A= new Mul_Expr(B, C, "*");}
+expr(A) ::= expr(B) DIV expr(C). {A= new Div_Expr(B, C, "/");}
+expr(A) ::= NOT expr(B). {A = new Not_Expr(B);}
+expr(A) ::= NEG expr(B). {A = new Neg_Expr(B);}
+expr(A) ::= constant(B). {A = dynamic_cast<Expr*>(B);}
+expr(A) ::= lvalue(B). {A = dynamic_cast<Expr*>(B);}
+expr(A) ::= CHAR_CONST(B).{A = dynamic_cast<Expr*>(B);}
+expr(A) ::= method_expr(B). {A = B;}
+expr(A) ::= OPENPAR expr(B) CLOSEPAR. {A = B;}
+
+method_expr(A) ::= ID(B) OPENPAR exprs_list(C) CLOSEPAR. {A = new MethodCallExpr(B->toString(),C);}
+method_expr(A) ::= SOR OPENPAR CLOSEPAR. {A = new MethodCallExpr("SOR",nullptr);}
+method_expr(A) ::= RANDOM OPENPAR expr(C) CLOSEPAR. {A = new MethodCallExpr("RANDOM",C);}
