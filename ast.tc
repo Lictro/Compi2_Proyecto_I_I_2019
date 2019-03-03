@@ -23,6 +23,7 @@ typedef std::string string_t;
 %node Expr ASTNode %abstract %typedef
 
 %node Program ASTNode = {
+    string_t id_prog;
     ASTNode* decl_field;
     ASTNode* method_field;
 }
@@ -206,7 +207,11 @@ toString(StrLiteral){
 }
 
 toString(Program){
-    return decl_field->toString();
+    string_t prog;
+    if(decl_field != nullptr){
+        prog = decl_field->toString();
+    }
+    return  "class " + id_prog + "{\n" + prog + "\n" + method_field->toString() + "}";
 }
 
 toString(IntegerType){
@@ -301,17 +306,17 @@ toString(MethodCallStatement){
 }
 
 toString(ArgumentsList){
-    string_t args_str;
-    for(int i = 0; i < args.size(); i++){
-        args_str += args[i]->toString() + ", ";
+    string_t args_str = args[0]->toString();
+    for(int i = 1; i < args.size(); i++){
+        args_str += ", "+ args[i]->toString();
     }
     return args_str;
 }
 
 toString(ExprList){
-    string_t exprs_str;
-    for(int i = 0; i < exprs.size(); i++){
-        exprs_str += exprs[i]->toString() + ", ";
+    string_t exprs_str = exprs[0]->toString();
+    for(int i = 1; i < exprs.size(); i++){
+        exprs_str += ", "+  exprs[i]->toString();
     }
     return exprs_str;
 }
@@ -326,8 +331,8 @@ toString(IfStatement){
 }
 
 toString(WhileStatement){
-    string_t str = "while("+cond->toString()+"){\n";
-    str += block->toString() + "}";
+    string_t str = "while("+cond->toString()+")";
+    str += block->toString();
     return str;
 }
 
@@ -347,17 +352,21 @@ toString(ContinueStatement){
 }
 
 toString(ForStatement){
-    string_t str = "for("+assignings->toString()+";"+cond->toString()+";";
-    str += increments->toString()+"){\n";
-    str += block->toString() + "}";
+    string_t str = "for("+assignings->toString()+" ; "+cond->toString()+" ; ";
+    str += increments->toString()+")";
+    str += block->toString();
     return str;
 }
 
 toString(AssigningsStatement){
-    string_t str;
-    for(int i = 0; i < assigns.size(); i++){
-        str += assigns[i]->toString() + ", ";
+    string_t str = assigns[0]->toString();
+    str.erase(str.length()-1);
+    for(int i = 1; i < assigns.size(); i++){
+        string_t t = assigns[i]->toString();
+        t.erase(t.length()-1);
+        str += ", " + t;
     }
+    //ids.erase(ids.length()-2);
     return str;
 }
 

@@ -17,7 +17,7 @@
     fprintf(stderr,"Giving up.  Parser is hopelessly lost...\n");
 }
 
-program ::= KWCLASS ID OPENCUR field_decl(B) methods_field(C) CLOSECUR. { std::cout << "PARSER COMPLETED!!!\n"<< B->toString() << "\n" << C->toString() << std::endl; }
+program ::= KWCLASS ID(A) OPENCUR field_decl(B) methods_field(C) CLOSECUR. { std::cout << "PARSER COMPLETED!!!\n"; auto prog = new Program(A->toString(),B,C); std::cout << prog->toString() << std::endl;}
 field_decl(A) ::= field_decl(B) decl(C) SEMICOLON. {A=B; dynamic_cast<DeclareField*>(A)->decla_list.push_back(C);}
 field_decl(A) ::= decl(B) SEMICOLON. {A = new DeclareField; dynamic_cast<DeclareField*>(A)->decla_list.push_back(B);} 
 field_decl(A) ::= . { A = nullptr; }
@@ -57,13 +57,13 @@ statements(A) ::= . {A = new BlockStatement;}
 statement(A) ::= assign(B) SEMICOLON. {A = B;}
 statement(A) ::= method_call(B) SEMICOLON. {A = B;}
 statement(A) ::= if_st(B). {A = B;}
-statement ::= while. {}
-statement ::= KWRETURN expr SEMICOLON. {}
-statement ::= KWRETURN SEMICOLON. {}
-statement ::= KWBREAK SEMICOLON. {}
-statement ::= KWCONTINUE SEMICOLON. {}
-statement ::= for_st. {}
-statement ::= block. {}
+statement(A) ::= while(B). {A = B;}
+statement(A) ::= KWRETURN expr(B) SEMICOLON. {A = new ReturnStatement(B);}
+statement(A) ::= KWRETURN SEMICOLON. {A = new ReturnStatement(nullptr);}
+statement(A) ::= KWBREAK SEMICOLON. {A = new BreakStatement;}
+statement(A) ::= KWCONTINUE SEMICOLON. {A = new ContinueStatement;}
+statement(A) ::= for_st(B). {A = B;}
+statement(A) ::= block(B). {A = B;}
 
 assign(A) ::= lvalue(B) OPASSIGN expr(C). {A = new AssignStatement(B,C);}
 
@@ -77,12 +77,12 @@ if_st(A) ::= KWIF OPENPAR expr(B) CLOSEPAR block(C) opt_else(D). {A = new IfStat
 opt_else(A) ::= KWELSE block(B). {A = B;}
 opt_else(A) ::= . {A = nullptr;}
 
-while ::= KWWHILE OPENPAR expr CLOSEPAR block. {}
+while(A) ::= KWWHILE OPENPAR expr(B) CLOSEPAR block(C). {A = new WhileStatement(B,C);}
 
-for_st ::= KWFOR OPENPAR list_assignings SEMICOLON expr SEMICOLON list_assignings CLOSEPAR block. {}
+for_st(A) ::= KWFOR OPENPAR list_assignings(B) SEMICOLON expr(C) SEMICOLON list_assignings(D) CLOSEPAR block(E). {A = new ForStatement(B,C,D,E);}
 
-list_assignings ::= list_assignings COMMA assign. {}
-list_assignings ::= assign. {}
+list_assignings(A) ::= list_assignings(B) COMMA assign(C). {A = B; dynamic_cast<AssigningsStatement*>(A)->assigns.push_back(C);}
+list_assignings(A) ::= assign(B). {A = new AssigningsStatement; dynamic_cast<AssigningsStatement*>(A)->assigns.push_back(B);}
 
 exprs_list(A) ::= exprs_list(B) COMMA expr(C). {A = B; dynamic_cast<ExprList*>(A)->exprs.push_back(C);}
 exprs_list(A) ::= expr(B). {A = new ExprList; dynamic_cast<ExprList*>(A)->exprs.push_back(B);}

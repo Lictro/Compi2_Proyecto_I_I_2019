@@ -1,33 +1,29 @@
-/*
-*
-* HOLA COMO ESTAS
-*
-*/
-
-class MyProgram {
-    int x,y,z,array[123]; //line comment
-    bool _var1 = true;
-    bool _var2 = false;
-
-    int suma
-
-    void main(){
-        if(x==12){
-            _var1 = 0xf;
-            x = suma(10,10);
-            System.out.print(10,10,10);
-            System.out.println(10,102);
-            x = System.in.read();
-            y = Random.nextInt(100);
-        }
-        while(1){
-            System.out.print(10);
-            return;
-            break;
-            return 1234;
-        }
-        for(i = 10,y=12; i < 12; i = 1 + i, i = 1 + i){
-            System.out.print("89");
-        }
+class ArithmeticOperations {
+    int x,ty;
+    void main() {
+        int a, b, result;
+        a = 10;
+        b = 5;
+        result = suma(a, b);
+        System.out.println(result);
+        result = resta(a, b);
+        System.out.println(result);
+        result = mult(a, b);
+        System.out.println(result);
+        result = divi(a, b);
+        System.out.println(result);
+    }
+    // Funciones que calculan operaciones aritmeticas
+    int suma(int a, int b) {
+        return a+b;
+    }
+    int resta(int a, int b) {
+        return a-b;
+    }
+    int mult(int a, int b) {
+        return a*b;
+    }
+    int divi(int a, int b) {
+        return a/b;
     }
 }
