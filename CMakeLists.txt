@@ -27,11 +27,12 @@ add_custom_command (
   OUTPUT decaf_ast.cpp decaf_ast.h
   COMMAND treecc -o decaf_ast.cpp -h decaf_ast.h ${PROJECT_SOURCE_DIR}/ast.tc
   MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/ast.tc
+  DEPENDS ${PROJECT_SOURCE_DIR}/semantic_ast.tc
   )
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${PROJECT_SOURCE_DIR})
 include_directories(${PROJECT_SOURCE_DIR}/../)
  
-add_executable(${PROJECT_NAME} decaf_ast.cpp decaf_parser.cpp decaf_lexer.cpp ../main.cpp)
+add_executable(${PROJECT_NAME} ../symbols_handler.cpp decaf_ast.cpp decaf_parser.cpp decaf_lexer.cpp ../main.cpp)
 

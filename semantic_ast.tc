@@ -1,0 +1,56 @@
+
+//Revisar Semantica sobre el AST
+%operation %virtual void check_sem(Statement* this, MethodDef* method)
+%operation %virtual int getTypeExpr(Expr* this, MethodDef* method)
+
+getTypeExpr(Binary){
+    if(expr1->getTypeExpr(method) != expr2->getTypeExpr(method)){
+        std::cout<<"Expresion 2 debe ser de mismo tipo. Linea "<<123<<std::endl;
+        ERRORS++;
+        return -1;
+    }
+    return expr1->getTypeExpr(method);
+}
+
+getTypeExpr(Unary){
+    return expr->getTypeExpr(method);
+}
+
+getTypeExpr(Number){
+    return 1;
+}
+
+getTypeExpr(BoolConst){
+    return 2;
+}
+
+getTypeExpr(CharConst){
+    return 1;
+}
+
+getTypeExpr(MethodCallExpr){
+    int result = getMethodType(id);
+    if(result == -1){
+        std::cout<<"Simbolo no encontrado :(, Linea "<<123<<std::endl;
+        ERRORS++;
+    } 
+    return result;
+}
+
+getTypeExpr(LValueSim){
+    int result = method->getType(id);
+    if(result == -1){
+        std::cout<<"Simbolo no encontrado :(, Linea "<<123<<std::endl;
+        ERRORS++;
+    }
+    return result;
+}
+
+getTypeExpr(LValueIdx){
+    int result = method->getType(id);
+    if(result == -1){
+        std::cout<<"Simbolo no encontrado :(, Linea "<<123<<std::endl;
+        ERRORS++;
+    }
+    return method->getType(id);
+}
