@@ -19,6 +19,10 @@ typedef std::string string_t;
 #include "decaf_ast.h"
 
 int ERRORS;
+string_t METHOD_NAME;
+
+std::vector<std::string> strconst;
+int CURRENT_TYPE;
 %}
 
 %node ASTNode %abstract %typedef
@@ -73,6 +77,7 @@ int ERRORS;
 }
 
 %node Method ASTNode = {
+    %nocreate MethodDef* def;
     ASTNode* type;
     string_t id;
     ASTNode* params;
@@ -180,8 +185,8 @@ int ERRORS;
     Expr* idx;
 }
 
-%node And_Expr Binary
-%node Or_Expr Binary
+%node And_Expr Binary //bool
+%node Or_Expr Binary //bool
 %node EQ_Expr Binary
 %node NE_Expr Binary
 %node GT_Expr Binary
@@ -196,8 +201,8 @@ int ERRORS;
 %node Mul_Expr Binary
 %node Div_Expr Binary
 
-%node Not_Expr Unary
-%node Neg_Expr Unary
+%node Not_Expr Unary //bool
+%node Neg_Expr Unary //arith
 
 %node StrLiteral ASTNode = {
     string_t text;

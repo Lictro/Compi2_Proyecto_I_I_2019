@@ -1,18 +1,149 @@
 
 //Revisar Semantica sobre el AST
-%operation %virtual void check_sem(Statement* this, MethodDef* method)
+%operation %virtual void check_sem(ASTNode* this, MethodDef* method)
 %operation %virtual int getTypeExpr(Expr* this, MethodDef* method)
 
 getTypeExpr(Binary){
     if(expr1->getTypeExpr(method) != expr2->getTypeExpr(method)){
-        std::cout<<"Expresion 2 debe ser de mismo tipo. Linea "<<123<<std::endl;
+        std::cout<<"Las expresiones deben ser de mismo tipo. Linea "<<getLinenum()<<", "<<toString()<<std::endl;
+        ERRORS++;
+        return -1;
+    }
+    if(expr1->getTypeExpr(method)!=1){
+        std::cout<<"Solo se admiten numeros. Linea "<<getLinenum()<<", "<<toString()<<std::endl;
         ERRORS++;
         return -1;
     }
     return expr1->getTypeExpr(method);
 }
 
-getTypeExpr(Unary){
+getTypeExpr(And_Expr){
+    if(expr1->getTypeExpr(method) != expr2->getTypeExpr(method)){
+        std::cout<<"Las expresiones deben ser de mismo tipo. Linea "<<getLinenum()<<", "<<toString()<<std::endl;
+        ERRORS++;
+        return -1;
+    }
+    if(expr1->getTypeExpr(method)!=2){
+        std::cout<<"Solo se admiten booleanos. Linea "<<getLinenum()<<", "<<toString()<<std::endl;
+        ERRORS++;
+        return -1;
+    }
+    return expr1->getTypeExpr(method);
+}
+
+getTypeExpr(Or_Expr){
+    if(expr1->getTypeExpr(method) != expr2->getTypeExpr(method)){
+        std::cout<<"Las expresiones deben ser de mismo tipo. Linea "<<getLinenum()<<", "<<toString()<<std::endl;
+        ERRORS++;
+        return -1;
+    }
+    if(expr1->getTypeExpr(method)!=2){
+        std::cout<<"Solo se admiten booleanos. Linea "<<getLinenum()<<", "<<toString()<<std::endl;
+        ERRORS++;
+        return -1;
+    }
+    return expr1->getTypeExpr(method);
+}
+
+getTypeExpr(EQ_Expr){
+    if(expr1->getTypeExpr(method) != expr2->getTypeExpr(method)){
+        std::cout<<"Las expresiones deben ser de mismo tipo. Linea "<<getLinenum()<<", "<<toString()<<std::endl;
+        ERRORS++;
+        return -1;
+    }
+    if(expr1->getTypeExpr(method)!=1){
+        std::cout<<"Solo se admiten numeros. Linea "<<getLinenum()<<", "<<toString()<<std::endl;
+        ERRORS++;
+        return -1;
+    }
+    return 2;
+}
+
+getTypeExpr(NE_Expr){
+    if(expr1->getTypeExpr(method) != expr2->getTypeExpr(method)){
+        std::cout<<"Las expresiones deben ser de mismo tipo. Linea "<<getLinenum()<<", "<<toString()<<std::endl;
+        ERRORS++;
+        return -1;
+    }
+    if(expr1->getTypeExpr(method)!=1){
+        std::cout<<"Solo se admiten numeros. Linea "<<getLinenum()<<", "<<toString()<<std::endl;
+        ERRORS++;
+        return -1;
+    }
+    return 2;
+}
+
+getTypeExpr(GT_Expr){
+    if(expr1->getTypeExpr(method) != expr2->getTypeExpr(method)){
+        std::cout<<"Las expresiones deben ser de mismo tipo. Linea "<<getLinenum()<<", "<<toString()<<std::endl;
+        ERRORS++;
+        return -1;
+    }
+    if(expr1->getTypeExpr(method)!=1){
+        std::cout<<"Solo se admiten numeros. Linea "<<getLinenum()<<", "<<toString()<<std::endl;
+        ERRORS++;
+        return -1;
+    }
+    return 2;
+}
+
+getTypeExpr(GE_Expr){
+    if(expr1->getTypeExpr(method) != expr2->getTypeExpr(method)){
+        std::cout<<"Las expresiones deben ser de mismo tipo. Linea "<<getLinenum()<<", "<<toString()<<std::endl;
+        ERRORS++;
+        return -1;
+    }
+    if(expr1->getTypeExpr(method)!=1){
+        std::cout<<"Solo se admiten numeros. Linea "<<getLinenum()<<", "<<toString()<<std::endl;
+        ERRORS++;
+        return -1;
+    }
+    return 2;
+}
+
+getTypeExpr(LT_Expr){
+    if(expr1->getTypeExpr(method) != expr2->getTypeExpr(method)){
+        std::cout<<"Las expresiones deben ser de mismo tipo. Linea "<<getLinenum()<<", "<<toString()<<std::endl;
+        ERRORS++;
+        return -1;
+    }
+    if(expr1->getTypeExpr(method)!=1){
+        std::cout<<"Solo se admiten numeros. Linea "<<getLinenum()<<", "<<toString()<<std::endl;
+        ERRORS++;
+        return -1;
+    }
+    return 2;
+}
+
+getTypeExpr(LE_Expr){
+    if(expr1->getTypeExpr(method) != expr2->getTypeExpr(method)){
+        std::cout<<"Las expresiones deben ser de mismo tipo. Linea "<<getLinenum()<<", "<<toString()<<std::endl;
+        ERRORS++;
+        return -1;
+    }
+    if(expr1->getTypeExpr(method)!=1){
+        std::cout<<"Solo se admiten numeros. Linea "<<getLinenum()<<", "<<toString()<<std::endl;
+        ERRORS++;
+        return -1;
+    }
+    return 2;
+}
+
+getTypeExpr(Not_Expr){
+    if(expr->getTypeExpr(method)!=2){
+        std::cout<<"Solo se admite booleano. Linea "<<getLinenum()<<", "<<toString()<<std::endl;
+        ERRORS++;
+        return -1;
+    }
+    return expr->getTypeExpr(method);
+}
+
+getTypeExpr(Neg_Expr){
+    if(expr->getTypeExpr(method)!=1){
+        std::cout<<"Solo se admite numero. Linea "<<getLinenum()<<", "<<toString()<<std::endl;
+        ERRORS++;
+        return -1;
+    }
     return expr->getTypeExpr(method);
 }
 
@@ -31,7 +162,7 @@ getTypeExpr(CharConst){
 getTypeExpr(MethodCallExpr){
     int result = getMethodType(id);
     if(result == -1){
-        std::cout<<"Simbolo no encontrado :(, Linea "<<123<<std::endl;
+        std::cout<<"Simbolo no encontrado :(, Linea "<<getLinenum()<<", "<<toString()<<std::endl;
         ERRORS++;
     } 
     return result;
@@ -40,7 +171,7 @@ getTypeExpr(MethodCallExpr){
 getTypeExpr(LValueSim){
     int result = method->getType(id);
     if(result == -1){
-        std::cout<<"Simbolo no encontrado :(, Linea "<<123<<std::endl;
+        std::cout<<"Simbolo no encontrado :(, Linea "<<getLinenum()<<", "<<toString()<<std::endl;
         ERRORS++;
     }
     return result;
@@ -49,8 +180,179 @@ getTypeExpr(LValueSim){
 getTypeExpr(LValueIdx){
     int result = method->getType(id);
     if(result == -1){
-        std::cout<<"Simbolo no encontrado :(, Linea "<<123<<std::endl;
+        std::cout<<"Simbolo no encontrado :(, Linea "<<getLinenum()<<", "<<toString()<<std::endl;
         ERRORS++;
     }
     return method->getType(id);
+}
+
+//Semantica
+
+check_sem(Expr){}
+
+check_sem(Program){
+    addMethodToGlobal("SOP",3);
+    addMethodToGlobal("SOPLN",3);
+    addMethodToGlobal("SOR",1);
+    addMethodToGlobal("RANDOM",1);
+    //std::cout << "Program" << std::endl;
+    decl_field->check_sem(nullptr);
+    method_field->check_sem(nullptr);
+}
+
+check_sem(IntegerType){
+    CURRENT_TYPE = 1;
+}
+
+check_sem(BoolType){
+    CURRENT_TYPE = 2;
+}
+
+check_sem(VoidType){
+    CURRENT_TYPE = 3;
+}
+
+check_sem(DeclareField){
+    for(int i = 0; i < decla_list.size(); i++){
+        decla_list[i]->check_sem(method);
+    }
+}
+
+check_sem(Declaration){
+    type->check_sem(nullptr);
+    declares->check_sem(method);
+}
+
+check_sem(DeclareList){
+    for(int i = 0; i < symbols.size(); i++){
+        symbols[i]->check_sem(method);
+    }
+}
+
+check_sem(DeclareSimple){
+    addSymbolToGlobal(id, CURRENT_TYPE);
+}
+
+check_sem(DeclareIdx){
+    addSymbolToGlobal(id, CURRENT_TYPE);
+}
+
+check_sem(MethodsField){
+    for(int i = 0; i < methods.size(); i++){
+        methods[i]->check_sem(method);
+    }
+}
+
+check_sem(Method){
+    def = new MethodDef();
+    type->check_sem(def);
+    addMethodToGlobal(id, CURRENT_TYPE);
+    if(params != nullptr){
+        def->createNewCtx();
+        params->check_sem(def);
+    }
+    if(block != nullptr){
+        block->check_sem(def);
+    }
+}
+
+check_sem(Parameters){
+    for(int i = 0; i < params.size(); i++){
+        params[i]->check_sem(method);
+    }
+}
+
+check_sem(Param){
+    type->check_sem(nullptr);
+    method->addToParams(id, CURRENT_TYPE);
+}
+
+//SENTENCIAS
+
+check_sem(AssignStatement){
+    lhs->getTypeExpr(method);
+    rhs->getTypeExpr(method);
+}
+
+check_sem(MethodCallStatement){
+    int mtype = getMethodType(identifier);
+    if(mtype == -1){
+        std::cout<<"Simbolo no encontrado :(, Linea "<<getLinenum()<<", "<<toString()<<std::endl;
+        ERRORS++;
+    }else{
+        METHOD_NAME = identifier;
+        if(args != nullptr)
+            args->check_sem(method);
+    }
+}
+
+check_sem(ArgumentsList){
+    for(int i = 0; i < args.size(); i++){
+        args[i]->check_sem(method);
+    }
+    METHOD_NAME = "";
+}
+
+check_sem(ExprList){
+    int countp = method->getCountParam();
+    if(countp != exprs.size()){
+        for(int i = 0; i < exprs.size(); i++){
+            if(dynamic_cast<Expr*>(exprs[i])->getTypeExpr(method) != method->getType(method->params[i])){
+                std::cout<<"Parametros incompatibles , Linea "<<getLinenum()<<", "<<exprs[i]->toString()<<std::endl;
+                ERRORS++;
+            }
+        }
+    }
+    METHOD_NAME = "";
+}
+
+check_sem(IfStatement){
+    true_blk->check_sem(method);
+    if(close_blk != nullptr){
+        close_blk->check_sem(method);
+    }
+}
+
+check_sem(WhileStatement){
+    block->check_sem(method);
+}
+
+check_sem(ReturnStatement){
+    if(expr != nullptr){
+        expr->check_sem(method);
+    }
+}
+
+check_sem(BreakStatement){}
+
+check_sem(ContinueStatement){}
+
+check_sem(ForStatement){
+    assignings->check_sem(method);
+    cond->check_sem(method);
+    increments->check_sem(method);
+    block->check_sem(method);
+}
+
+check_sem(AssigningsStatement){
+    for(int i = 0; i < assigns.size(); i++){
+        assigns[i]->check_sem(method);
+    }
+}
+
+check_sem(BlockStatement){
+    //std::cout << "Bloque" << std::endl;
+    method->incrementar();
+    if(decl_field !=  nullptr){
+        decl_field->check_sem(method);
+    }
+    
+    for(int i = 0; i < stmts.size(); i++){
+        stmts[i]->check_sem(method);
+    }
+    method->decrementar();
+}
+
+check_sem(StrLiteral){
+    strconst.push_back(text);
 }

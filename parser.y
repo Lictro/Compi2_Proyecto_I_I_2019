@@ -17,7 +17,12 @@
     fprintf(stderr,"Giving up.  Parser is hopelessly lost...\n");
 }
 
-program ::= KWCLASS ID(A) OPENCUR field_decl(B) methods_field(C) CLOSECUR. { std::cout << "PARSER COMPLETED!!!\n"; auto prog = new Program(A->toString(),B,C); std::cout << prog->toString() << std::endl;}
+program ::= KWCLASS ID(A) OPENCUR field_decl(B) methods_field(C) CLOSECUR. { 
+                                                                                std::cout << "PARSER COMPLETED!!!\n"; 
+                                                                                auto prog = new Program(A->toString(),B,C);
+                                                                                std::cout << prog->toString() << std::endl; 
+                                                                                prog->check_sem(nullptr);
+                                                                            }
 field_decl(A) ::= field_decl(B) decl(C) SEMICOLON. {A=B; dynamic_cast<DeclareField*>(A)->decla_list.push_back(C);}
 field_decl(A) ::= decl(B) SEMICOLON. {A = new DeclareField; dynamic_cast<DeclareField*>(A)->decla_list.push_back(B);} 
 field_decl(A) ::= . { A = nullptr; }
@@ -110,28 +115,28 @@ argument(A) ::= STRLIT(B). {A = B;}
 lvalue(A) ::= ID(B). { A = dynamic_cast<Expr*>(B); }
 lvalue(A) ::= ID(B) OPENBRA expr(C) CLOSEBRA. {A = new LValueIdx(B->toString(), C);}
 
-expr(A) ::= expr(B) AND expr(C). {A= new And_Expr(B, C, "&&");}
-expr(A) ::= expr(B) OR expr(C). {A= new Or_Expr(B, C, "||");}
-expr(A) ::= expr(B) EQ expr(C). {A= new EQ_Expr(B, C, "==");}
-expr(A) ::= expr(B) NE expr(C). {A= new NE_Expr(B, C, "!=");}
-expr(A) ::= expr(B) GT expr(C). {A= new GT_Expr(B, C, ">");}
-expr(A) ::= expr(B) GE expr(C). {A= new GE_Expr(B, C, ">=");}
-expr(A) ::= expr(B) LT expr(C). {A= new LT_Expr(B, C, "<");}
-expr(A) ::= expr(B) LE expr(C). {A= new LE_Expr(B, C, "<=");}
-expr(A) ::= expr(B) SHL expr(C). {A= new SHL_Expr(B, C, "<<");}
-expr(A) ::= expr(B) SHR expr(C). {A= new SHR_Expr(B, C, ">>");}
-expr(A) ::= expr(B) MOD expr(C). {A= new Mod_Expr(B, C, "%");}
-expr(A) ::= expr(B) ADD expr(C). {A= new Add_Expr(B, C, "+");}
-expr(A) ::= expr(B) SUB expr(C). {A= new Sub_Expr(B, C, "-");}
-expr(A) ::= expr(B) MUL expr(C). {A= new Mul_Expr(B, C, "*");}
-expr(A) ::= expr(B) DIV expr(C). {A= new Div_Expr(B, C, "/");}
-expr(A) ::= NOT expr(B). {A = new Not_Expr(B);}
-expr(A) ::= NEG expr(B). {A = new Neg_Expr(B);}
-expr(A) ::= constant(B). {A = dynamic_cast<Expr*>(B);}
-expr(A) ::= lvalue(B). {A = dynamic_cast<Expr*>(B);}
-expr(A) ::= CHAR_CONST(B).{A = dynamic_cast<Expr*>(B);}
-expr(A) ::= method_expr(B). {A = B;}
-expr(A) ::= OPENPAR expr(B) CLOSEPAR. {A = B;}
+expr(A) ::= expr(B) AND expr(C). {A= new And_Expr(B, C, "&&"); A->setLinenum(lineno); }
+expr(A) ::= expr(B) OR expr(C). {A= new Or_Expr(B, C, "||"); A->setLinenum(lineno); }
+expr(A) ::= expr(B) EQ expr(C). {A= new EQ_Expr(B, C, "=="); A->setLinenum(lineno); }
+expr(A) ::= expr(B) NE expr(C). {A= new NE_Expr(B, C, "!="); A->setLinenum(lineno); }
+expr(A) ::= expr(B) GT expr(C). {A= new GT_Expr(B, C, ">"); A->setLinenum(lineno); }
+expr(A) ::= expr(B) GE expr(C). {A= new GE_Expr(B, C, ">="); A->setLinenum(lineno); }
+expr(A) ::= expr(B) LT expr(C). {A= new LT_Expr(B, C, "<"); A->setLinenum(lineno); }
+expr(A) ::= expr(B) LE expr(C). {A= new LE_Expr(B, C, "<="); A->setLinenum(lineno); }
+expr(A) ::= expr(B) SHL expr(C). {A= new SHL_Expr(B, C, "<<"); A->setLinenum(lineno); }
+expr(A) ::= expr(B) SHR expr(C). {A= new SHR_Expr(B, C, ">>"); A->setLinenum(lineno); }
+expr(A) ::= expr(B) MOD expr(C). {A= new Mod_Expr(B, C, "%"); A->setLinenum(lineno); }
+expr(A) ::= expr(B) ADD expr(C). {A= new Add_Expr(B, C, "+"); A->setLinenum(lineno); }
+expr(A) ::= expr(B) SUB expr(C). {A= new Sub_Expr(B, C, "-"); A->setLinenum(lineno); }
+expr(A) ::= expr(B) MUL expr(C). {A= new Mul_Expr(B, C, "*"); A->setLinenum(lineno); }
+expr(A) ::= expr(B) DIV expr(C). {A= new Div_Expr(B, C, "/"); A->setLinenum(lineno); }
+expr(A) ::= NOT expr(B). {A = new Not_Expr(B); A->setLinenum(lineno); }
+expr(A) ::= NEG expr(B). {A = new Neg_Expr(B); A->setLinenum(lineno); }
+expr(A) ::= constant(B). {A = dynamic_cast<Expr*>(B); A->setLinenum(lineno); }
+expr(A) ::= lvalue(B). {A = dynamic_cast<Expr*>(B); A->setLinenum(lineno); }
+expr(A) ::= CHAR_CONST(B).{A = dynamic_cast<Expr*>(B); A->setLinenum(lineno); }
+expr(A) ::= method_expr(B). {A = B; A->setLinenum(lineno); }
+expr(A) ::= OPENPAR expr(B) CLOSEPAR. {A = B; A->setLinenum(lineno); }
 
 method_expr(A) ::= ID(B) OPENPAR exprs_list(C) CLOSEPAR. {A = new MethodCallExpr(B->toString(),C);}
 method_expr(A) ::= SOR OPENPAR CLOSEPAR. {A = new MethodCallExpr("SOR",nullptr);}

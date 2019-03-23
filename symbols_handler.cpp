@@ -11,7 +11,7 @@ void addMethodToGlobal(std::string str, int type){
     methods.insert(std::make_pair(str, type));
 }
 
-int getType(std::string name){
+int getTypeGlobal(std::string name){
     auto symbol = global.find(name);
     if(symbol != global.end()){
         return symbol->second;

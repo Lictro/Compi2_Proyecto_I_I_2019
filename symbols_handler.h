@@ -2,10 +2,11 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
+#include <stack>
 
 void addSymbolToGlobal(std::string str, int type);
 void addMethodToGlobal(std::string str, int type);
-int getType(std::string name);
+int getTypeGlobal(std::string name);
 int getMethodType(std::string met);
 
 class Context{
@@ -24,14 +25,20 @@ public:
         }
         return -1;
     }
+
+    int getCount(){
+        return symbols.size();
+    }
 };
 
 class MethodDef{
 public:
     std::string name;
     int return_type;
-    std::unordered_map<std::string, int> params;
+    std::vector<std::string> params;
     std::vector<Context*> ctxs;
+    int actual = 0;
+
 
     int getType(std::string name){
         for(int i = ctxs.size()-1; i >= 0; i++){
@@ -40,11 +47,32 @@ public:
                 return type;
             }
         }
-        auto param = params.find(name);
-        if(param != params.end()){
-            return param->second;
-        }
-        auto symglobal = getType(name);
+        auto symglobal = getTypeGlobal(name);
         return symglobal;
+    }
+
+    void addToParams(std::string str, int type){
+        params.push_back(str);
+        ctxs[0]->addToCtx(str, type);
+    }
+
+    void createNewCtx(){
+        ctxs.push_back(new Context());
+    }
+
+    int getCountParam(){
+        return params.size();
+    }
+
+    void addToCtx(std::string str, int type){
+        ctxs[actual]->addToCtx(str, type);
+    }
+
+    void incrementar(){
+        actual++;
+    }
+
+    void decrementar(){
+        actual--;
     }
 };
