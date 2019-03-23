@@ -1,4 +1,5 @@
 #include <iostream>
+#include <utility> 
 #include <unordered_map>
 #include <vector>
 #include <string>
@@ -12,16 +13,20 @@ int getMethodType(std::string met);
 class Context{
 public:
     Context(){}
-    std::unordered_map<std::string, int> symbols;
+    std::vector<std::string> symbols;
+    std::vector<int> types;
 
     void addToCtx(std::string str, int type){
-        symbols.insert(std::make_pair(str,type));
+        //std::cout<<"add en ctx "<<str<<std::endl;
+        symbols.push_back(str);
+        types.push_back(type);
     }
 
     int getType(std::string name){
-        auto symbol = symbols.find(name);
-        if(symbol != symbols.end()){
-            return symbol->second;
+        for(int i = 0; i<symbols.size(); i++){
+            if(symbols[i]==name){
+                return types[i];
+            }
         }
         return -1;
     }
@@ -39,12 +44,16 @@ public:
     std::vector<Context*> ctxs;
     int actual = 0;
 
+    MethodDef(std::string name){
+        this->name = name;
+    }
 
     int getType(std::string name){
+        //std::cout<<"buscando en local "<<name<<std::endl;
         for(int i = ctxs.size()-1; i >= 0; i--){
             int type = ctxs[i]->getType(name);
-            //std::cout << "gettyo" << std::endl;
             if(type >= 1){
+                //std::cout << "gettyo "<< name << std::endl;
                 return type;
             }
         }
@@ -55,6 +64,7 @@ public:
     void addToParams(std::string str, int type){
         params.push_back(str);
         ctxs[0]->addToCtx(str, type);
+        //std::cout<<"add en mi param "<<params.size()<< actual<<std::endl;
     }
 
     void createNewCtx(){
@@ -66,6 +76,7 @@ public:
     }
 
     void addToCtx(std::string str, int type){
+        //std::cout<<"add en mi ctx "<<ctxs.size()<< actual<<std::endl;
         ctxs[actual]->addToCtx(str, type);
     }
 

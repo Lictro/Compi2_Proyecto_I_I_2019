@@ -165,8 +165,14 @@ getTypeExpr(MethodCallExpr){
     int result = getMethodType(id);
     if(result == -1){
         std::cout<<"Simbolo no encontrado :(, Linea "<<getLinenum()<<", "<<toString()<<std::endl;
+        result = -1;
         ERRORS++;
-    } 
+    }
+    if(exprs!=nullptr){
+        //std::cout<<"Revisar Semantica"<<std::endl;
+        METHOD_NAME = id;
+        exprs->check_sem(method);
+    }
     return result;
 }
 
@@ -229,7 +235,7 @@ check_sem(MethodCallStatement){
     //std::cout << "call" << std::endl;
     int mtype = getMethodType(identifier);
     if(mtype == -1){
-        std::cout<<"Simbolo no encontrado :(, Linea "<<getLinenum()<<", "<<toString()<<std::endl;
+        std::cout<<"Simbolo no encontrado , Linea "<<getLinenum()<<", "<<toString()<<std::endl;
         ERRORS++;
     }else{
         METHOD_NAME = identifier;
@@ -246,14 +252,24 @@ check_sem(ArgumentsList){
 }
 
 check_sem(ExprList){
-    int countp = method->getCountParam();
-    if(countp != exprs.size()){
+    string_t param;
+    int type;
+    int countp = getParamsCount(METHOD_NAME);
+    if(countp == exprs.size()){
+    //std::cout<<"exprlist "<<countp<<"--"<<exprs.size()<<std::endl;
         for(int i = 0; i < exprs.size(); i++){
-            if(dynamic_cast<Expr*>(exprs[i])->getTypeExpr(method) != method->getType(method->params[i])){
-                std::cout<<"Parametros incompatibles , Linea "<<getLinenum()<<", "<<exprs[i]->toString()<<std::endl;
+            dynamic_cast<Expr*>(exprs[i])->getTypeExpr(method);
+            param = getNameParam(METHOD_NAME, i);
+            type = getTypeParam(METHOD_NAME, param);
+            //method->getType(method->params[i]);
+            if(dynamic_cast<Expr*>(exprs[i])->getTypeExpr(method) != type){
+                std::cout<<"Parametros incompatibles , Linea "<<exprs[i]->getLinenum()<<", "<<exprs[i]->toString()<<std::endl;
                 ERRORS++;
             }
         }
+    }else{
+        std::cout<<"Cantidades diferentes de parametros. Esperado "<<countp
+            <<", recibido "<<exprs.size()<<". Linea "<<exprs[0]->getLinenum()<<std::endl;
     }
     METHOD_NAME = "";
 }

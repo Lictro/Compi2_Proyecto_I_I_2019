@@ -23,6 +23,40 @@ string_t METHOD_NAME;
 
 std::vector<std::string> strconst;
 int CURRENT_TYPE;
+int GOTOLOCAL = 0;
+
+std::vector<MethodDef*> functions;
+
+void addFn(MethodDef* df){
+    functions.push_back(df);
+}
+
+int getParamsCount(string_t name){
+    for(int i = 0; i < functions.size(); i++){
+        if(functions[i]->name == name){
+            return functions[i]->params.size();
+        }
+    }
+    return 0;
+}
+
+int getTypeParam(string_t name, string_t symbol){
+    for(int i = 0; i < functions.size(); i++){
+        if(functions[i]->name == name){
+            return functions[i]->getType(symbol);
+        }
+    }
+    return 0;
+}
+
+string_t getNameParam(string_t name, int i){
+    for(int i = 0; i < functions.size(); i++){
+        if(functions[i]->name == name){
+            return functions[i]->params[i];
+        }
+    }
+    return "";
+}
 %}
 
 %node ASTNode %abstract %typedef

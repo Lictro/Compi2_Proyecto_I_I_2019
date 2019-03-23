@@ -46,11 +46,17 @@ load_symbols(DeclareList){
 }
 
 load_symbols(DeclareSimple){
-    addSymbolToGlobal(id, CURRENT_TYPE);
+    if(GOTOLOCAL == 1)
+        method->addToCtx(id, CURRENT_TYPE);
+    else
+        addSymbolToGlobal(id, CURRENT_TYPE);
 }
 
 load_symbols(DeclareIdx){
-    addSymbolToGlobal(id, CURRENT_TYPE);
+    if(GOTOLOCAL == 1)
+        method->addToCtx(id, CURRENT_TYPE);
+    else
+        addSymbolToGlobal(id, CURRENT_TYPE);
 }
 
 load_symbols(MethodsField){
@@ -60,7 +66,8 @@ load_symbols(MethodsField){
 }
 
 load_symbols(Method){
-    def = new MethodDef();
+    def = new MethodDef(id);
+    addFn(def);
     type->load_symbols(def);
     addMethodToGlobal(id, CURRENT_TYPE);
     if(params != nullptr){
@@ -85,9 +92,8 @@ load_symbols(Param){
 
 load_symbols(BlockStatement){
     if(decl_field !=  nullptr){
-        method->incrementar();
         method->createNewCtx();
+        GOTOLOCAL = 1;
         decl_field->load_symbols(method);
-        method->decrementar();
     }
 }

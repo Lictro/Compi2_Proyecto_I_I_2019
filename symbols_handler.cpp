@@ -12,6 +12,7 @@ void addMethodToGlobal(std::string str, int type){
 }
 
 int getTypeGlobal(std::string name){
+    //std::cout<<"buscando en global "<<name<<std::endl;
     auto symbol = global.find(name);
     if(symbol != global.end()){
         return symbol->second;
