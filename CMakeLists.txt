@@ -28,6 +28,7 @@ add_custom_command (
   COMMAND treecc -o decaf_ast.cpp -h decaf_ast.h ${PROJECT_SOURCE_DIR}/ast.tc
   MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/ast.tc
   DEPENDS ${PROJECT_SOURCE_DIR}/semantic_ast.tc
+    ${PROJECT_SOURCE_DIR}/load_symbols.tc
   )
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})

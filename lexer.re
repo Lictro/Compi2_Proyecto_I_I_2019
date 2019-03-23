@@ -66,7 +66,7 @@ int lex(input_t & in)
             oblock = "/*";
             cblock = "*\/";
             end = "\x00";
-            wsp = [" "]+;
+            wsp = [" "|\t]+;
             eol = [\n];
             dec = [0-9]*;
             hex = '0x' [0-9a-fA-F]+;
@@ -109,7 +109,7 @@ int lex(input_t & in)
 
         init:
         /*!re2c
-            *   { text = "error"; return ERROR; }
+            *   { std::string t(in.tok,in.cur-in.tok); std::cout<<"ffffff"<<std::endl; text = "error"; return ERROR; }
             end { text = "eof"; return EOFI; }
             wsp { continue; }
             eol { lineno++; continue; }
@@ -129,9 +129,9 @@ int lex(input_t & in)
             "class" { text = "class"; return KWCLASS; }
             "int" { text = "int"; return KWINT; }
             "bool" { text = "bool"; return KWBOOL; }
+            "void" { text = "void"; return KWVOID; }
             "true" { text = "true"; return KWTRUE; }
             "false" { text = "false"; return KWFALSE; }
-            "void" { text = "void"; return KWVOID; }
             "if" { text = "if"; return KWIF; }
             "else" { text = "if"; return KWELSE; }
             "while" { text = "while"; return KWWHILE; }
@@ -160,7 +160,7 @@ int lex(input_t & in)
             "*" { text = "*"; return MUL; }
             "/" { text = "/"; return DIV; }
             "%" { text = "%"; return MOD; }
-            "!" { text = "!"; return NEG; }
+            "!" { text = "!"; return NOT; }
             "<" { text = "<"; return LT; }
             ">" { text = ">"; return GT; }
             "<=" { text = "<="; return LE; }
@@ -169,6 +169,8 @@ int lex(input_t & in)
             ">>" { text = ">>"; return SHR; }
             "==" { text = "=="; return EQ; }
             "!=" { text = "!="; return NE; }
+            "&&" { text = "&&"; return AND; }
+            "||" { text = "||"; return OR; }
         */
     }
 }

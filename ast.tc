@@ -433,4 +433,5 @@ toString(LValueIdx){
     return id + "(" + idx->toString() + ")";
 }
 
+%include "load_symbols.tc"
 %include "semantic_ast.tc"

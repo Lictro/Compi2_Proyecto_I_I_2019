@@ -130,6 +130,7 @@ getTypeExpr(LE_Expr){
 }
 
 getTypeExpr(Not_Expr){
+    //std::cout<<"not"<<std::endl;
     if(expr->getTypeExpr(method)!=2){
         std::cout<<"Solo se admite booleano. Linea "<<getLinenum()<<", "<<toString()<<std::endl;
         ERRORS++;
@@ -139,6 +140,7 @@ getTypeExpr(Not_Expr){
 }
 
 getTypeExpr(Neg_Expr){
+    //std::cout<<"negar"<<std::endl;
     if(expr->getTypeExpr(method)!=1){
         std::cout<<"Solo se admite numero. Linea "<<getLinenum()<<", "<<toString()<<std::endl;
         ERRORS++;
@@ -169,9 +171,10 @@ getTypeExpr(MethodCallExpr){
 }
 
 getTypeExpr(LValueSim){
+    //std::cout << "lvales" << std::endl;
     int result = method->getType(id);
     if(result == -1){
-        std::cout<<"Simbolo no encontrado :(, Linea "<<getLinenum()<<", "<<toString()<<std::endl;
+        std::cout<<"Simbolo no encontrado , Linea "<<getLinenum()<<", "<<toString()<<std::endl;
         ERRORS++;
     }
     return result;
@@ -186,55 +189,14 @@ getTypeExpr(LValueIdx){
     return method->getType(id);
 }
 
-//Semantica
-
-check_sem(Expr){}
+check_sem(Expr){
+    getTypeExpr(method);
+}
+check_sem(ASTNode){}
 
 check_sem(Program){
-    addMethodToGlobal("SOP",3);
-    addMethodToGlobal("SOPLN",3);
-    addMethodToGlobal("SOR",1);
-    addMethodToGlobal("RANDOM",1);
-    //std::cout << "Program" << std::endl;
-    decl_field->check_sem(nullptr);
+    //std::cout << "Program sem" << std::endl;
     method_field->check_sem(nullptr);
-}
-
-check_sem(IntegerType){
-    CURRENT_TYPE = 1;
-}
-
-check_sem(BoolType){
-    CURRENT_TYPE = 2;
-}
-
-check_sem(VoidType){
-    CURRENT_TYPE = 3;
-}
-
-check_sem(DeclareField){
-    for(int i = 0; i < decla_list.size(); i++){
-        decla_list[i]->check_sem(method);
-    }
-}
-
-check_sem(Declaration){
-    type->check_sem(nullptr);
-    declares->check_sem(method);
-}
-
-check_sem(DeclareList){
-    for(int i = 0; i < symbols.size(); i++){
-        symbols[i]->check_sem(method);
-    }
-}
-
-check_sem(DeclareSimple){
-    addSymbolToGlobal(id, CURRENT_TYPE);
-}
-
-check_sem(DeclareIdx){
-    addSymbolToGlobal(id, CURRENT_TYPE);
 }
 
 check_sem(MethodsField){
@@ -244,37 +206,27 @@ check_sem(MethodsField){
 }
 
 check_sem(Method){
-    def = new MethodDef();
-    type->check_sem(def);
-    addMethodToGlobal(id, CURRENT_TYPE);
-    if(params != nullptr){
-        def->createNewCtx();
-        params->check_sem(def);
-    }
+    //std::cout << "Method sem" << std::endl;
     if(block != nullptr){
+        //std::cout << "Method sem" << std::endl;
         block->check_sem(def);
     }
-}
-
-check_sem(Parameters){
-    for(int i = 0; i < params.size(); i++){
-        params[i]->check_sem(method);
-    }
-}
-
-check_sem(Param){
-    type->check_sem(nullptr);
-    method->addToParams(id, CURRENT_TYPE);
 }
 
 //SENTENCIAS
 
 check_sem(AssignStatement){
-    lhs->getTypeExpr(method);
-    rhs->getTypeExpr(method);
+    //std::cout << "ASSI sem" << std::endl;
+    int ls = lhs->getTypeExpr(method);
+    int rs = rhs->getTypeExpr(method);
+    if(ls != rs){
+        std::cout<<"Tipo de datos incompatibles, Linea "<<rhs->getLinenum()<<", "<<toString()<<std::endl;
+        ERRORS++;
+    }
 }
 
 check_sem(MethodCallStatement){
+    //std::cout << "call" << std::endl;
     int mtype = getMethodType(identifier);
     if(mtype == -1){
         std::cout<<"Simbolo no encontrado :(, Linea "<<getLinenum()<<", "<<toString()<<std::endl;
@@ -307,6 +259,7 @@ check_sem(ExprList){
 }
 
 check_sem(IfStatement){
+    cond->getTypeExpr(method);
     true_blk->check_sem(method);
     if(close_blk != nullptr){
         close_blk->check_sem(method);
@@ -314,6 +267,7 @@ check_sem(IfStatement){
 }
 
 check_sem(WhileStatement){
+    cond->getTypeExpr(method);
     block->check_sem(method);
 }
 
@@ -329,7 +283,7 @@ check_sem(ContinueStatement){}
 
 check_sem(ForStatement){
     assignings->check_sem(method);
-    cond->check_sem(method);
+    cond->getTypeExpr(method);
     increments->check_sem(method);
     block->check_sem(method);
 }

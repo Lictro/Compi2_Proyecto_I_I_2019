@@ -1,0 +1,93 @@
+%operation %virtual void load_symbols(ASTNode* this, MethodDef* method)
+
+load_symbols(Expr){}
+load_symbols(Statement){}
+load_symbols(StrLiteral){}
+
+load_symbols(Program){
+    addMethodToGlobal("SOP",3);
+    addMethodToGlobal("SOPLN",3);
+    addMethodToGlobal("SOR",1);
+    addMethodToGlobal("RANDOM",1);
+    //std::cout << "Program" << std::endl;
+    if(decl_field != nullptr)
+        decl_field->load_symbols(nullptr);
+    if(method_field != nullptr)
+        method_field->load_symbols(nullptr);
+}
+
+load_symbols(IntegerType){
+    CURRENT_TYPE = 1;
+}
+
+load_symbols(BoolType){
+    CURRENT_TYPE = 2;
+}
+
+load_symbols(VoidType){
+    CURRENT_TYPE = 3;
+}
+
+load_symbols(DeclareField){
+    for(int i = 0; i < decla_list.size(); i++){
+        decla_list[i]->load_symbols(method);
+    }
+}
+
+load_symbols(Declaration){
+    type->load_symbols(nullptr);
+    declares->load_symbols(method);
+}
+
+load_symbols(DeclareList){
+    for(int i = 0; i < symbols.size(); i++){
+        symbols[i]->load_symbols(method);
+    }
+}
+
+load_symbols(DeclareSimple){
+    addSymbolToGlobal(id, CURRENT_TYPE);
+}
+
+load_symbols(DeclareIdx){
+    addSymbolToGlobal(id, CURRENT_TYPE);
+}
+
+load_symbols(MethodsField){
+    for(int i = 0; i < methods.size(); i++){
+        methods[i]->load_symbols(method);
+    }
+}
+
+load_symbols(Method){
+    def = new MethodDef();
+    type->load_symbols(def);
+    addMethodToGlobal(id, CURRENT_TYPE);
+    if(params != nullptr){
+        def->createNewCtx();
+        params->load_symbols(def);
+    }
+    if(block != nullptr){
+        block->load_symbols(def);
+    }
+}
+
+load_symbols(Parameters){
+    for(int i = 0; i < params.size(); i++){
+        params[i]->load_symbols(method);
+    }
+}
+
+load_symbols(Param){
+    type->load_symbols(nullptr);
+    method->addToParams(id, CURRENT_TYPE);
+}
+
+load_symbols(BlockStatement){
+    if(decl_field !=  nullptr){
+        method->incrementar();
+        method->createNewCtx();
+        decl_field->load_symbols(method);
+        method->decrementar();
+    }
+}

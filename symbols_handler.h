@@ -41,8 +41,9 @@ public:
 
 
     int getType(std::string name){
-        for(int i = ctxs.size()-1; i >= 0; i++){
+        for(int i = ctxs.size()-1; i >= 0; i--){
             int type = ctxs[i]->getType(name);
+            //std::cout << "gettyo" << std::endl;
             if(type >= 1){
                 return type;
             }
