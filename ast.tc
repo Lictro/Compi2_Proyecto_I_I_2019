@@ -108,7 +108,7 @@ string_t save_str(std::string str){
 
 string_t newlbl(){
     labels++;
-    return "str"+std::to_string(labels);
+    return "label"+std::to_string(labels);
 }
 
 string_t getTextSection(){
@@ -134,7 +134,7 @@ string_t getFreeTemp(){
 }
 
 string_t getPlace(ASTNode* e){
-    if(e->isA(Number_kind)){
+    if(e->isA(Number_kind) || e->isA(BoolConst_kind)){
       return e->place;
     }
     return "dword[" +e->place+"]";

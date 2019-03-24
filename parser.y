@@ -31,7 +31,8 @@ program ::= KWCLASS ID(A) OPENCUR field_decl(B) methods_field(C) CLOSECUR. {
                                                                                 //std::cout << prog->toString() << std::endl;
                                                                                 prog->load_symbols(nullptr); 
                                                                                 prog->check_sem(nullptr);
-                                                                                prog->gencode(nullptr);
+                                                                                if(getCountErr())
+                                                                                    prog->gencode(nullptr);
                                                                             }
 field_decl(A) ::= field_decl(B) decl(C) SEMICOLON. {A=B; dynamic_cast<DeclareField*>(A)->decla_list.push_back(C);}
 field_decl(A) ::= decl(B) SEMICOLON. {A = new DeclareField; dynamic_cast<DeclareField*>(A)->decla_list.push_back(B);} 
