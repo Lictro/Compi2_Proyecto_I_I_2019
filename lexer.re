@@ -66,7 +66,7 @@ int lex(input_t & in)
             oblock = "/*";
             cblock = "*\/";
             end = "\x00";
-            wsp = [" "|\t]+;
+            wsp = [ |\t]+;
             eol = [\n];
             dec = [0-9]*;
             hex = '0x' [0-9a-fA-F]+;
@@ -111,6 +111,8 @@ int lex(input_t & in)
         /*!re2c
             *   { std::string t(in.tok,in.cur-in.tok); std::cout<<"ffffff"<<std::endl; text = "error"; return ERROR; }
             end { text = "eof"; return EOFI; }
+            dstr { std::string t(in.tok,in.cur-in.tok);
+                text=t; return STRLIT; }
             wsp { continue; }
             eol { lineno++; continue; }
             line { state = 1; continue; }
@@ -124,8 +126,6 @@ int lex(input_t & in)
             char_const { std::string t(in.tok,in.cur-in.tok);
                 text=std::to_string((int)t.at(1));
                 return NUMBER; }
-            dstr { std::string t(in.tok,in.cur-in.tok);
-                text=t; return STRLIT; }
             "class" { text = "class"; return KWCLASS; }
             "int" { text = "int"; return KWINT; }
             "bool" { text = "bool"; return KWBOOL; }

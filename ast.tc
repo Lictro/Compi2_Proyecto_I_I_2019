@@ -7,18 +7,30 @@
 #include <math.h>
 #include <vector>
 #include <unordered_map>
+#include <sstream>
 #include "symbols_handler.h"
 
 class ASTNode;
 
 typedef std::vector<ASTNode*> astn_list;
-typedef std::string string_t;    
+typedef std::string string_t; 
+
+bool getCountErr();
 %}
 
 %{
 #include "decaf_ast.h"
 
 int ERRORS;
+
+bool getCountErr(){
+    if(ERRORS > 0){
+        std::cout<<"\nErrores "<<ERRORS<<std::endl;
+        return false;
+    }
+    return true;
+}
+
 string_t METHOD_NAME;
 
 std::vector<std::string> strconst;
@@ -57,9 +69,82 @@ string_t getNameParam(string_t name, int i){
     }
     return "";
 }
+//Generacion de Codigo x86
+int count_str;
+std::unordered_map<std::string, std::string>strcst;
+int labels;
+
+std::unordered_map<std::string, bool> temp = {
+        {"eax", false},
+        {"ecx", false},
+        {"edx", false}
+    };
+
+std::vector<string_t> explode(string_t& s, const char& c)
+{
+	string_t buff{""};
+	std::vector<string_t> v;
+	
+	for(auto n:s)
+	{
+		if(n != c) buff+=n; else
+		if(n == c && buff != "") { v.push_back(buff); buff = ""; }
+	}
+	if(buff != "") v.push_back(buff);
+	
+	return v;
+}
+
+string_t save_str(std::string str){
+    auto found = strcst.find(str);
+    if(found == strcst.end()){
+        count_str++;
+        auto val = "str"+std::to_string(count_str);
+        strcst.insert(std::make_pair(str, val));
+        return val;
+    }
+    return found->second;
+}
+
+string_t newlbl(){
+    labels++;
+    return "str"+std::to_string(labels);
+}
+
+string_t getTextSection(){
+    std::ostringstream code;
+    for( const auto& sm_pair : strcst ){
+        code << sm_pair.second << " dd "<<sm_pair.first << ", 0\n";
+    }
+    return code.str();
+}
+
+string_t getFreeTemp(){
+    if(!temp["eax"]){
+        temp["eax"] = true;
+        return "eax";
+    }else if(!temp["ecx"]){
+        temp["ecx"] = true;
+        return "ecx";
+    }else if(!temp["edx"]){
+        temp["edx"] = true;
+        return "edx";
+    }
+    return "none";
+}
+
+string_t getPlace(ASTNode* e){
+    if(e->isA(Number_kind)){
+      return e->place;
+    }
+    return "dword[" +e->place+"]";
+  }
 %}
 
-%node ASTNode %abstract %typedef
+%node ASTNode %abstract %typedef = {
+    %nocreate string_t code;
+    %nocreate string_t place;
+}
 %node Statement ASTNode %abstract %typedef
 %node Expr ASTNode %abstract %typedef
 
@@ -469,3 +554,4 @@ toString(LValueIdx){
 
 %include "load_symbols.tc"
 %include "semantic_ast.tc"
+%include "gencode.tc"

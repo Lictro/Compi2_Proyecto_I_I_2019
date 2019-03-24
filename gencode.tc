@@ -1,0 +1,242 @@
+%operation %virtual string_t gencode(ASTNode* this, MethodDef* method)
+
+gencode(Type){return "";}
+gencode(DeclareField){return "";}
+gencode(Declaration){return "";}
+gencode(DeclareList){return "";}
+gencode(DeclareSimple){return "";}
+gencode(DeclareIdx){return "";}
+gencode(Parameters){return "";}
+gencode(Param){return "";}
+
+gencode(ASTNode){
+    return "";
+}
+
+gencode(Program){
+    save_str("\"true\"");
+    save_str("\"false\"");
+    method_field->gencode(method);
+    std::ostringstream sscode;
+    if(method_field != nullptr)
+        method_field->gencode(method);
+    sscode << "global main\n\n"
+        << "extern printf\n"
+        << "extern scanf\n"
+        << "\nsection .data\n"
+        << getTextSection()<<"\n"
+        << "section .text\n\n"
+        << method_field->code
+        ;
+    code = sscode.str();
+    std::cout<<code<<std::endl;
+    return code;
+}
+
+gencode(MethodsField){
+    std::ostringstream sscode;
+    for(int i = 0; i < methods.size(); i++){
+        sscode << methods[i]->gencode(method);
+    }
+    code = sscode.str();
+    return code;
+}
+
+gencode(Method){
+    std::ostringstream sscode;
+    block->gencode(def);
+    sscode << id << ":\n";
+    if(def->offset>0){
+        sscode << "push ebp\n"
+            << "mov ebp, esp\n"
+            << "sub esp, " << def->offset<<"\n\n";
+    }
+    sscode << block->code;
+    sscode << "\nend_"<<id<<":\n";
+    if(def->offset>0){
+        sscode << "add esp, " << def->offset<<"\n";
+    }
+    sscode << "leave\n" << "ret\n";
+    code = sscode.str();
+    return code;
+}
+
+gencode(BlockStatement){
+    std::ostringstream sscode;
+    for(int i = 0; i < stmts.size(); i++){
+        sscode << stmts[i]->gencode(method);
+    }
+    code = sscode.str();
+    return code;
+}
+
+gencode(MethodCallStatement){
+    std::ostringstream sscode;
+    int params = 0;
+    if(identifier == "SOPLN"){
+        //std::cout<<"estas en sop"<<std::endl;
+        string_t mask = "\"";
+        string_t place;
+        auto argu = dynamic_cast<ArgumentsList*>(args)->args;
+        for(auto &arg : argu){
+            if(arg->isA(StrLiteral_kind)){
+                mask += "%s";
+            }else{
+                auto expr = dynamic_cast<Expr*>(arg);
+                int type = expr->getTypeExpr(method);
+                if(type == 1){
+                    mask += "%d";
+                }else{
+                    mask += "%s";
+                }
+            }
+        }
+        mask += "%c\"";
+        place = save_str(mask);
+        sscode << "push 10\n";
+        params+=4;
+        for(int i = argu.size()-1; 0 <= i; i--){
+            params+=4;
+                if(argu[i]->isA(StrLiteral_kind)){
+                    sscode << "push ";
+                    sscode << save_str(argu[i]->toString());
+                }else{
+                    auto expr = dynamic_cast<Expr*>(argu[i]);
+                    int type = expr->getTypeExpr(method);
+                    expr->gencode(method);
+                    if(type == 1){
+                        if(expr->isA(Number_kind))
+                            sscode << "push " << expr->place;
+                        else
+                            sscode << "push dword[" << expr->place << "]";
+                    }else{
+                        if(expr->isA(BoolConst_kind)){
+                            if(expr->place == "1"){
+                                sscode << "push str1";
+                            }else{
+                                sscode << "push str2";
+                            }
+                        }
+                    }
+                }
+            sscode << "\n";
+        }
+        params+=4;
+        sscode << "push " << place << "\n"
+            << "call printf\n"
+            << "add esp, "<< params << "\n";
+    }else if(identifier == "SOP"){
+        //std::cout<<"estas en sop"<<std::endl;
+        string_t mask = "\"";
+        string_t place;
+        auto argu = dynamic_cast<ArgumentsList*>(args)->args;
+        for(auto &arg : argu){
+            if(arg->isA(StrLiteral_kind)){
+                mask += "%s";
+            }else{
+                auto expr = dynamic_cast<Expr*>(arg);
+                int type = expr->getTypeExpr(method);
+                if(type == 1){
+                    mask += "%d";
+                }else{
+                    mask += "%s";
+                }
+            }
+        }
+        mask += "\"";
+        place = save_str(mask);
+        for(int i = argu.size()-1; 0 <= i; i--){
+            params+=4;
+            sscode << "push ";
+                if(argu[i]->isA(StrLiteral_kind)){
+                    sscode << save_str(argu[i]->toString());
+                }else{
+                    
+                }
+            sscode << "\n";
+        }
+        params+=4;
+        sscode << "push " << place << "\n"
+            << "call printf\n"
+            << "add esp, "<< params << "\n";
+    }
+    code = sscode.str();
+    return code;
+}
+
+gencode(Number){
+  place = std::to_string(number);
+  return "";
+}
+
+gencode(BoolConst){
+  place = std::to_string(tOf);
+  return "";
+}
+
+gencode(Add_Expr){
+    std::ostringstream sscode;
+    sscode << expr1->gencode(method)
+        << expr2->gencode(method)
+        << "mov eax, " + getPlace(expr1) + "\n"
+        << "add eax, " + getPlace(expr2) + "\n";
+    place = "ebp - " + std::to_string(method->getOffset());
+    sscode   << "mov dword[" + place + "], eax\n";
+    code = sscode.str();
+    return code;
+}
+
+gencode(Sub_Expr){
+    std::ostringstream sscode;
+    sscode << expr1->gencode(method)
+        << expr2->gencode(method)
+        << "mov eax, " + getPlace(expr1) + "\n"
+        << "sub eax, " + getPlace(expr2) + "\n";
+    place = "ebp - " + std::to_string(method->getOffset());
+    sscode   << "mov dword[" + place + "], eax\n";
+    code = sscode.str();
+    return code;
+}
+
+gencode(Mul_Expr){
+    std::ostringstream sscode;
+    sscode << expr1->gencode(method)
+        << expr2->gencode(method)
+        << "mov eax, " + getPlace(expr1) + "\n"
+        << "mov ecx, " + getPlace(expr2) + "\n"
+        << "imul ecx\n";
+    place = "ebp - " + std::to_string(method->getOffset());
+    sscode   << "mov dword[" + place + "], eax\n";
+    code = sscode.str();
+    return code;
+}
+
+gencode(Div_Expr){
+    std::ostringstream sscode;
+    sscode << expr1->gencode(method)
+        << expr2->gencode(method)
+        << "xor edx, edx\n"
+        << "mov eax, " + getPlace(expr1) + "\n"
+        << "mov ecx, " + getPlace(expr2) + "\n"
+        << "cdq\n"
+        << "idiv ecx\n";
+    place = "ebp - " + std::to_string(method->getOffset());
+    sscode   << "mov dword[" + place + "], eax\n";
+    code = sscode.str();
+    return code;
+}
+
+gencode(Mod_Expr){
+    std::ostringstream sscode;
+    sscode << expr1->gencode(method)
+        << expr2->gencode(method)
+        << "xor edx, edx\n"
+        << "mov eax, " + getPlace(expr1) + "\n"
+        << "mov ecx, " + getPlace(expr2) + "\n"
+        << "cdq\n"
+        << "idiv ecx\n";
+    place = "ebp - " + std::to_string(method->getOffset());
+    sscode   << "mov dword[" + place + "], edx\n";
+    code = sscode.str();
+    return code;
+}

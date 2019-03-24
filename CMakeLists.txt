@@ -29,6 +29,7 @@ add_custom_command (
   MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/ast.tc
   DEPENDS ${PROJECT_SOURCE_DIR}/semantic_ast.tc
     ${PROJECT_SOURCE_DIR}/load_symbols.tc
+    ${PROJECT_SOURCE_DIR}/gencode.tc
   )
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})

@@ -42,10 +42,18 @@ public:
     int return_type;
     std::vector<std::string> params;
     std::vector<Context*> ctxs;
-    int actual = 0;
+    int actual;
+    int offset;
 
     MethodDef(std::string name){
         this->name = name;
+        actual = 0;
+        offset = 0;
+    }
+
+    int getOffset(){
+        offset += 4;
+        return offset;
     }
 
     int getType(std::string name){
