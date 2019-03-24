@@ -158,12 +158,39 @@ gencode(MethodCallStatement){
         place = save_str(mask);
         for(int i = argu.size()-1; 0 <= i; i--){
             params+=4;
-            sscode << "push ";
-                if(argu[i]->isA(StrLiteral_kind)){
-                    sscode << save_str(argu[i]->toString());
+            if(argu[i]->isA(StrLiteral_kind)){
+                sscode << "push ";
+                sscode << save_str(argu[i]->toString());
+            }else{
+                auto expr = dynamic_cast<Expr*>(argu[i]);
+                int type = expr->getTypeExpr(method);
+                expr->gencode(method);
+                if(type == 1){
+                    if(expr->isA(Number_kind))
+                        sscode << "push " << expr->place;
+                    else
+                        sscode << expr->code <<"push dword[" << expr->place << "]";
                 }else{
-                    
+                    if(expr->isA(BoolConst_kind)){
+                        if(expr->place == "1"){
+                            sscode << "push str1";
+                        }else{
+                            sscode << "push str2";
+                        }
+                    }else{
+                        string_t lbl = newlbl();
+                        sscode << expr->code
+                            << "mov eax, " << getPlace(expr) << "\n"
+                            << "cmp eax, 0\n"
+                            << "je "<< lbl << "\n"
+                            << "push str2\n"
+                            << "jmp end_" << lbl <<"\n"
+                            << lbl << ":\n"
+                            << "push str1\n"
+                            << "end_"<<lbl<<":\n";
+                    }
                 }
+            }
             sscode << "\n";
         }
         params+=4;
