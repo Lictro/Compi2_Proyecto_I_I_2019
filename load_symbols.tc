@@ -69,7 +69,7 @@ load_symbols(DeclareIdx){
         method->addToCtx(id, CURRENT_TYPE);
     else{
         addSymbolToGlobal(id, CURRENT_TYPE);
-        addPlaceToGlobal("-" + id, "0");
+        addPlaceToGlobal(std::to_string(size) + "-" + id, "0");
     }
 }
 

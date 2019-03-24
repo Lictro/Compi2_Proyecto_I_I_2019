@@ -208,7 +208,36 @@ gencode(AssignStatement){
     lhs->gencode(method);
     sscode << rhs->gencode(method)
         << "mov eax, " + getPlace(rhs) + "\n"
+        << lhs->code
         << "mov dword[" + lhs->place + "], eax\n";
+    code = sscode.str();
+    return code;
+}
+
+gencode(ForStatement){
+    string_t lbl = "for_" + newlbl();
+    goback_point = lbl;
+    exit_point = "end_" + lbl;
+    std::ostringstream sscode;
+    sscode << assignings->gencode(method)
+        << lbl << ":\n"
+        << cond->gencode(method)
+        << "mov eax, " << getPlace(cond)<<" ; for cond\n"
+        << "cmp eax, 1\n"
+        << "jge end_" << lbl <<"\n"
+        << block->gencode(method)
+        << increments->gencode(method)
+        << "jmp " << lbl << "\n"
+        << "end_" << lbl << ":\n\n";
+    code = sscode.str();
+    return code;
+}
+
+gencode(AssigningsStatement){
+    std::ostringstream sscode;
+    for(int i = 0; i < assigns.size(); i++){
+        sscode<< assigns[i]->gencode(method);
+    }
     code = sscode.str();
     return code;
 }
@@ -226,6 +255,17 @@ gencode(BoolConst){
 gencode(LValueSim){
   place = method->getPlace(id);
   return "";
+}
+
+gencode(LValueIdx){
+    std::ostringstream sscode;
+    idx->gencode(method);
+    sscode << idx->code
+        << "mov edx, " << method->getPlace(id) <<"\n"
+        << "add edx, " << getPlace(idx) << "\n";
+    place = "edx";
+    code = sscode.str();
+    return code;
 }
 
 gencode(Add_Expr){

@@ -12,6 +12,7 @@ int getTypeGlobal(std::string name);
 int getMethodType(std::string met);
 void addPlaceToGlobal(std::string place, std::string init);
 std::string getGlobal();
+std::vector<std::string> split(std::string phrase, std::string delimiter);
 
 
 class Context{

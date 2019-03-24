@@ -36,7 +36,30 @@ void addPlaceToGlobal(std::string place, std::string init){
 std::string getGlobal(){
     std::ostringstream code;
     for( const auto& sm_pair : globa_places ){
-        code << sm_pair.first << " dd "<<sm_pair.second << "\n";
+        auto tokens = split(sm_pair.first, "-");
+        if(tokens.size()==2){
+            code << "global "<< tokens[1]<<"\n"
+                <<tokens[1] << ":\n";
+            int size = std::stoi(tokens[0]);
+            for(int i = 0; i < size; i++){
+                code<<"     db 0\n";
+            }
+        }else{
+            code << sm_pair.first << " dd "<<sm_pair.second << "\n";
+        }
     }
     return code.str();
+}
+
+std::vector<std::string> split(std::string phrase, std::string delimiter){
+    std::vector<std::string> results;
+    size_t pos = 0;
+    std::string token;
+    while ((pos = phrase.find(delimiter)) != std::string::npos) {
+        token = phrase.substr(0, pos);
+        results.push_back(token);
+        phrase.erase(0, pos + delimiter.length());
+    }
+    results.push_back(phrase);
+    return results;
 }
