@@ -4,185 +4,124 @@ extern printf
 extern scanf
 
 section .data
-str11 dd "izquerda ", 0
-str10 dd "%s%d%c", 0
-str9 dd "menor igual ", 0
-str8 dd "mayor igual ", 0
-str7 dd "menor ", 0
-str2 dd "false", 0
-str1 dd "true", 0
-str3 dd "%s%s%c", 0
-str12 dd "derecha ", 0
-str5 dd "distinto ", 0
-str4 dd "igual ", 0
-str6 dd "mayor ", 0
+link dd 2017
+a dd 0
+flag dd 1
+b dd 0
+str13 db "%s%c", 0
+str9 db "Sub ", 0
+str8 db "Add ", 0
+str7 db "%d%c", 0
+str11 db "Div ", 0
+str2 db "false", 0
+str1 db "true", 0
+str3 db "%s", 0
+str4 db "X = ", 0
+str10 db "Mul ", 0
+str5 db "%d", 0
+str12 db "Mod ", 0
+str6 db ", Y = ", 0
 
 section .text
 
 main:
 push ebp
 mov ebp, esp
-sub esp, 64
+sub esp, 40
 
-push 10
-mov eax, 10
-cmp eax, 11;10==11
-je label13
-mov eax, 1
-jmp end_label13
-label13:
-mov eax, 0
-end_label13:
-mov dword[ebp - 36], eax
-mov eax, dword[ebp - 36]
-cmp eax, 0
-je label14
-push str2
-jmp end_label14
-label14:
-push str1
-end_label14:
-
+mov eax, 15
+mov dword[ebp - 4], eax
+mov eax, 3
+mov dword[ebp - 8], eax
 push str4
 push str3
 call printf
-add esp, 16
-push 10
-mov eax, 10
-cmp eax, 11
-jne label15
-mov eax, 1
-jmp end_label15
-label15:
-mov eax, 0
-end_label15:
-mov dword[ebp - 40], eax
-mov eax, dword[ebp - 40]
-cmp eax, 0
-je label16
-push str2
-jmp end_label16
-label16:
-push str1
-end_label16:
-
+add esp, 8
+push dword[ebp - 4]
 push str5
-push str3
 call printf
-add esp, 16
-push 10
-mov eax, 10
-cmp eax, 11
-jg label17
-mov eax, 1
-jmp end_label17
-label17:
-mov eax, 0
-end_label17:
-mov dword[ebp - 44], eax
-mov eax, dword[ebp - 44]
-cmp eax, 0
-je label18
-push str2
-jmp end_label18
-label18:
-push str1
-end_label18:
-
+add esp, 8
 push str6
 push str3
 call printf
-add esp, 16
+add esp, 8
 push 10
-mov eax, 10
-cmp eax, 11
-jl label19
-mov eax, 1
-jmp end_label19
-label19:
-mov eax, 0
-end_label19:
-mov dword[ebp - 48], eax
-mov eax, dword[ebp - 48]
-cmp eax, 0
-je label20
-push str2
-jmp end_label20
-label20:
-push str1
-end_label20:
-
+push dword[ebp - 8]
 push str7
-push str3
 call printf
-add esp, 16
-push 10
-mov eax, 10
-cmp eax, 11
-jge label21
-mov eax, 1
-jmp end_label21
-label21:
-mov eax, 0
-end_label21:
-mov dword[ebp - 52], eax
-mov eax, dword[ebp - 52]
-cmp eax, 0
-je label22
-push str2
-jmp end_label22
-label22:
-push str1
-end_label22:
-
+add esp, 12
 push str8
 push str3
 call printf
-add esp, 16
+add esp, 8
 push 10
-mov eax, 10
-cmp eax, 11
-jle label23
-mov eax, 1
-jmp end_label23
-label23:
-mov eax, 0
-end_label23:
-mov dword[ebp - 56], eax
-mov eax, dword[ebp - 56]
-cmp eax, 0
-je label24
-push str2
-jmp end_label24
-label24:
-push str1
-end_label24:
-
+mov eax, dword[ebp - 4]
+add eax, dword[link]
+mov dword[ebp - 28], eax
+push dword[ebp - 28]
+push str7
+call printf
+add esp, 12
 push str9
 push str3
 call printf
-add esp, 16
+add esp, 8
 push 10
-mov eax, 100
-sal eax, 1
-mov dword[ebp - 60], eax
-push dword[ebp - 60]
+mov eax, dword[ebp - 4]
+sub eax, dword[ebp - 8]
+mov dword[ebp - 32], eax
+push dword[ebp - 32]
+push str7
+call printf
+add esp, 12
+push str10
+push str3
+call printf
+add esp, 8
+push 10
+mov eax, dword[ebp - 4]
+mov ecx, dword[ebp - 8]
+imul ecx
+mov dword[ebp - 36], eax
+push dword[ebp - 36]
+push str7
+call printf
+add esp, 12
 push str11
-push str10
+push str3
 call printf
-add esp, 16
+add esp, 8
 push 10
-mov eax, 100
-sar eax, 1
-mov dword[ebp - 64], eax
-push dword[ebp - 64]
-push str12
-push str10
+xor edx, edx
+mov eax, dword[ebp - 4]
+mov ecx, dword[ebp - 8]
+cdq
+idiv ecx
+mov dword[ebp - 40], eax
+push dword[ebp - 40]
+push str7
 call printf
-add esp, 16
+add esp, 12
+push str12
+push str3
+call printf
+add esp, 8
+push 10
+mov eax, dword[flag]
+cmp eax, 0
+je label2
+push str2
+jmp end_label2
+label2:
+push str1
+end_label2:
+
+push str13
+call printf
+add esp, 12
 
 end_main:
-add esp, 64
+add esp, 40
 leave
 ret
 

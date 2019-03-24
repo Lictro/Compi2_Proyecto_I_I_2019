@@ -24,6 +24,7 @@ gencode(Program){
         << "extern printf\n"
         << "extern scanf\n"
         << "\nsection .data\n"
+        << getGlobal()
         << getTextSection()<<"\n"
         << "section .text\n\n"
         << method_field->code

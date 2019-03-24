@@ -48,15 +48,29 @@ load_symbols(DeclareList){
 load_symbols(DeclareSimple){
     if(GOTOLOCAL == 1)
         method->addToCtx(id, CURRENT_TYPE);
-    else
+    else{
         addSymbolToGlobal(id, CURRENT_TYPE);
+        if(init == nullptr)
+            addPlaceToGlobal(id, "0");
+        else{
+            if(init->isA(BoolConst_kind)){
+                if(init->toString() == "false")
+                    addPlaceToGlobal(id, "0");
+                else
+                    addPlaceToGlobal(id, "1");
+            }else
+                addPlaceToGlobal(id, init->toString());
+        }
+    }
 }
 
 load_symbols(DeclareIdx){
     if(GOTOLOCAL == 1)
         method->addToCtx(id, CURRENT_TYPE);
-    else
+    else{
         addSymbolToGlobal(id, CURRENT_TYPE);
+        addPlaceToGlobal("-" + id, "0");
+    }
 }
 
 load_symbols(MethodsField){

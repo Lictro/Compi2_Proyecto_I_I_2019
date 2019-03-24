@@ -2,6 +2,7 @@
 
 std::unordered_map<std::string, int>global;
 std::unordered_map<std::string, int>methods;
+std::unordered_map<std::string, std::string>globa_places;
 
 void addSymbolToGlobal(std::string str, int type){
     global.insert(std::make_pair(str, type));
@@ -26,4 +27,16 @@ int getMethodType(std::string met){
         return method->second;
     }
     return -1;
+}
+
+void addPlaceToGlobal(std::string place, std::string init){
+    globa_places.insert(std::make_pair(place, init));
+}
+
+std::string getGlobal(){
+    std::ostringstream code;
+    for( const auto& sm_pair : globa_places ){
+        code << sm_pair.first << " dd "<<sm_pair.second << "\n";
+    }
+    return code.str();
 }

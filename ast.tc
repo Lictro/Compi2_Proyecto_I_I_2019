@@ -7,7 +7,6 @@
 #include <math.h>
 #include <vector>
 #include <unordered_map>
-#include <sstream>
 #include "symbols_handler.h"
 
 class ASTNode;
@@ -114,7 +113,7 @@ string_t newlbl(){
 string_t getTextSection(){
     std::ostringstream code;
     for( const auto& sm_pair : strcst ){
-        code << sm_pair.second << " dd "<<sm_pair.first << ", 0\n";
+        code << sm_pair.second << " db "<<sm_pair.first << ", 0\n";
     }
     return code.str();
 }

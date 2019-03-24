@@ -4,11 +4,15 @@
 #include <vector>
 #include <string>
 #include <stack>
+#include <sstream>
 
 void addSymbolToGlobal(std::string str, int type);
 void addMethodToGlobal(std::string str, int type);
 int getTypeGlobal(std::string name);
 int getMethodType(std::string met);
+void addPlaceToGlobal(std::string place, std::string init);
+std::string getGlobal();
+
 
 class Context{
 public:
@@ -45,7 +49,9 @@ public:
     int local;
     int actual;
     int offset;
+    int paramoffset;
     std::unordered_map<std::string, std::string> places;
+    std::unordered_map<std::string, std::string> paramplaces;
 
     MethodDef(std::string name){
         this->name = name;
@@ -57,6 +63,11 @@ public:
     int getOffset(){
         offset += 4;
         return offset;
+    }
+
+    int getParamOffset(){
+        paramoffset -= 4;
+        return paramoffset;
     }
 
     int getType(std::string name){
@@ -83,7 +94,11 @@ public:
         if(place != places.end()){
             return place->second;
         }
-        return "param";
+        place = paramplaces.find(str);
+        if(place != paramplaces.end()){
+            return place->second;
+        }
+        return str;
     }
 
     void createNewCtx(){
@@ -104,6 +119,8 @@ public:
     void save(std::string str){
         if(local)
             places.insert(std::make_pair(str, "ebp - " + std::to_string(getOffset())));
+        else
+            paramplaces.insert(std::make_pair(str, "ebp + " + std::to_string(getParamOffset())));
     }
 
     void incrementar(){
