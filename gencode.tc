@@ -219,7 +219,9 @@ gencode(ForStatement){
     goback_point = lbl;
     exit_point = "end_" + lbl;
     std::ostringstream sscode;
-    sscode << assignings->gencode(method)
+    sscode 
+        << "; ForStatement\n"
+        << assignings->gencode(method)
         << lbl << ":\n"
         << cond->gencode(method)
         << "mov eax, " << getPlace(cond)<<" ; for cond\n"
@@ -229,6 +231,26 @@ gencode(ForStatement){
         << increments->gencode(method)
         << "jmp " << lbl << "\n"
         << "end_" << lbl << ":\n\n";
+    code = sscode.str();
+    return code;
+}
+
+gencode(IfStatement){
+    string_t lbl = "if_" + newlbl();
+    std::ostringstream sscode;
+    sscode
+        << "; IfStatement\n"
+        << cond->gencode(method)
+        << "mov eax, " << getPlace(cond)<<" ; for cond\n"
+        << "cmp eax, 1\n";
+    sscode
+        << "jge else_" << lbl <<"\n"
+        << true_blk->gencode(method)
+        << "jmp end_" << lbl << "\n"
+        << "else_" << lbl <<":\n";
+    if(close_blk != nullptr)
+        sscode << close_blk->gencode(method);
+    sscode << "end_" << lbl << ":\n";
     code = sscode.str();
     return code;
 }
