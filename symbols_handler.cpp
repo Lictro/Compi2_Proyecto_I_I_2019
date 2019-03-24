@@ -38,12 +38,8 @@ std::string getGlobal(){
     for( const auto& sm_pair : globa_places ){
         auto tokens = split(sm_pair.first, "-");
         if(tokens.size()==2){
-            code << "global "<< tokens[1]<<"\n"
-                <<tokens[1] << ":\n";
             int size = std::stoi(tokens[0]);
-            for(int i = 0; i < size; i++){
-                code<<"     db 0\n";
-            }
+            code << tokens[1] << " TIMES " << size << " DD 0\n";
         }else{
             code << sm_pair.first << " dd "<<sm_pair.second << "\n";
         }

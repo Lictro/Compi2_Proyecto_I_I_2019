@@ -261,8 +261,10 @@ gencode(LValueIdx){
     std::ostringstream sscode;
     idx->gencode(method);
     sscode << idx->code
-        << "mov edx, " << method->getPlace(id) <<"\n"
-        << "add edx, " << getPlace(idx) << "\n";
+        << "mov ecx, " << getPlace(idx) << "\n"
+        << "shl ecx, 2\n"
+        << "mov edx, " << id << "\n"
+        << "add edx, ecx\n";
     place = "edx";
     code = sscode.str();
     return code;
