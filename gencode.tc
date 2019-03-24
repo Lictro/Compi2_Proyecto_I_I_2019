@@ -108,7 +108,7 @@ gencode(MethodCallStatement){
                         if(expr->isA(Number_kind))
                             sscode << "push " << expr->place;
                         else
-                            sscode << "push dword[" << expr->place << "]";
+                            sscode << expr->code <<"push dword[" << expr->place << "]";
                     }else{
                         if(expr->isA(BoolConst_kind)){
                             if(expr->place == "1"){
@@ -384,6 +384,30 @@ gencode(LE_Expr){
         << lbl << ":\n"
         << "mov eax, 0\n"
         << "end_" << lbl <<":\n";
+    place = "ebp - " + std::to_string(method->getOffset());
+    sscode   << "mov dword[" + place + "], eax\n";
+    code = sscode.str();
+    return code;
+}
+
+gencode(SHR_Expr){
+    std::ostringstream sscode;
+    sscode << expr1->gencode(method)
+        << expr2->gencode(method)
+        << "mov eax, " + getPlace(expr1) + "\n"
+        << "sar eax, " + getPlace(expr2) + "\n";
+    place = "ebp - " + std::to_string(method->getOffset());
+    sscode   << "mov dword[" + place + "], eax\n";
+    code = sscode.str();
+    return code;
+}
+
+gencode(SHL_Expr){
+    std::ostringstream sscode;
+    sscode << expr1->gencode(method)
+        << expr2->gencode(method)
+        << "mov eax, " + getPlace(expr1) + "\n"
+        << "sal eax, " + getPlace(expr2) + "\n";
     place = "ebp - " + std::to_string(method->getOffset());
     sscode   << "mov dword[" + place + "], eax\n";
     code = sscode.str();
