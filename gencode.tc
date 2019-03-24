@@ -202,6 +202,16 @@ gencode(MethodCallStatement){
     return code;
 }
 
+gencode(AssignStatement){
+    std::ostringstream sscode;
+    lhs->gencode(method);
+    sscode << rhs->gencode(method)
+        << "mov eax, " + getPlace(rhs) + "\n"
+        << "mov dword[" + lhs->place + "], eax\n";
+    code = sscode.str();
+    return code;
+}
+
 gencode(Number){
   place = std::to_string(number);
   return "";
@@ -209,6 +219,11 @@ gencode(Number){
 
 gencode(BoolConst){
   place = std::to_string(tOf);
+  return "";
+}
+
+gencode(LValueSim){
+  place = method->getPlace(id);
   return "";
 }
 

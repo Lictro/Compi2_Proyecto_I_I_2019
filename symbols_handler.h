@@ -42,13 +42,16 @@ public:
     int return_type;
     std::vector<std::string> params;
     std::vector<Context*> ctxs;
+    int local;
     int actual;
     int offset;
+    std::unordered_map<std::string, std::string> places;
 
     MethodDef(std::string name){
         this->name = name;
         actual = 0;
         offset = 0;
+        local = 1;
     }
 
     int getOffset(){
@@ -71,8 +74,16 @@ public:
 
     void addToParams(std::string str, int type){
         params.push_back(str);
+        local = 0;
         ctxs[0]->addToCtx(str, type);
-        //std::cout<<"add en mi param "<<params.size()<< actual<<std::endl;
+    }
+
+    std::string getPlace(std::string str){
+        auto place = places.find(str);
+        if(place != places.end()){
+            return place->second;
+        }
+        return "param";
     }
 
     void createNewCtx(){
@@ -86,6 +97,13 @@ public:
     void addToCtx(std::string str, int type){
         //std::cout<<"add en mi ctx "<<ctxs.size()<< actual<<std::endl;
         ctxs[actual]->addToCtx(str, type);
+        save(str);
+        local=1;
+    }
+
+    void save(std::string str){
+        if(local)
+            places.insert(std::make_pair(str, "ebp - " + std::to_string(getOffset())));
     }
 
     void incrementar(){
