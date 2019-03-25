@@ -23,6 +23,7 @@ gencode(Program){
     sscode << "global main\n\n"
         << "extern printf\n"
         << "extern scanf\n"
+        << "extern time\n"
         << "\nsection .data\n"
         << getGlobal()
         << getTextSection()<<"\n"
@@ -201,9 +202,9 @@ gencode(MethodCallStatement){
             << "call printf\n"
             << "add esp, "<< params << "\n";
     }else if(identifier == "SOR"){
-        sscode << "call scanf";
+        sscode << "call scanf\n";
     }else if(identifier == "RANDOM"){
-
+        sscode << "call rand\n";
     }else{
         int count = getParamsCount(identifier);
         sscode << args->gencode(method)
@@ -362,7 +363,17 @@ gencode(MethodCallExpr){
             << "call scanf\n"
             << "add esp, 8\n";
     }else if(id == "RANDOM"){
-
+        exprs->gencode(method);
+        place = "ebp - " + std::to_string(method->getOffset());
+        sscode << "push 0\n"
+            << "call time\n"
+            << "add esp, 4\n"
+            << exprs->code
+            << "mov ecx, "<< getPlace(exprs)<<"\n"
+            << "xor edx, edx\n"
+            << "cdq\n"
+            << "idiv ecx\n"
+            << "mov dword["<<place<<"], edx\n";
     }else{
         int count = getParamsCount(id);
         sscode << exprs->gencode(method)
