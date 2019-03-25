@@ -28,7 +28,7 @@
 program ::= KWCLASS ID(A) OPENCUR field_decl(B) methods_field(C) CLOSECUR. { 
                                                                                 //std::cout << "PARSER COMPLETED!!!\n"; 
                                                                                 auto prog = new Program(A->toString(),B,C);
-                                                                                std::cout << prog->toString() << std::endl;
+                                                                                //std::cout << prog->toString() << std::endl;
                                                                                 prog->load_symbols(nullptr); 
                                                                                 prog->check_sem(nullptr);
                                                                                 if(getCountErr()){

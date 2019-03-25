@@ -226,7 +226,7 @@ gencode(ForStatement){
         << assignings->gencode(method)
         << lbl << ":\n"
         << cond->gencode(method)
-        << "mov eax, " << getPlace(cond)<<" ; for cond\n"
+        << "mov eax, " << getPlace(cond)<<" ;for condition\n"
         << "cmp eax, 1\n"
         << "jge end_" << lbl <<"\n"
         << block->gencode(method)
@@ -245,7 +245,7 @@ gencode(IfStatement){
     sscode
         << "; IfStatement\n"
         << cond->gencode(method)
-        << "mov eax, " << getPlace(cond)<<" ; for cond\n"
+        << "mov eax, " << getPlace(cond)<<" ;if condition\n"
         << "cmp eax, 1\n";
     sscode
         << "jge else_" << lbl <<"\n"
@@ -268,7 +268,7 @@ gencode(WhileStatement){
         << "; WhileStatement\n"
         << lbl << ":\n"
         << cond->gencode(method)
-        << "mov eax, " << getPlace(cond)<<" ; for cond\n"
+        << "mov eax, " << getPlace(cond)<<" ;while condition\n"
         << "cmp eax, 1\n"
         << "jge end_" << lbl <<"\n"
         << block->gencode(method)
@@ -306,7 +306,8 @@ gencode(ReturnStatement){
         return "mov eax, 3021998\njmp " + exit + "\n";
     }
     sscode << expr->gencode(method)
-        << "mov eax, " << getPlace(expr) << "\n";
+        << "mov eax, " << getPlace(expr) << "\n"
+        << "jmp " << exit << "\n";
     return sscode.str();
 }
 
@@ -338,12 +339,35 @@ gencode(LValueIdx){
     return code;
 }
 
+gencode(MethodCallExpr){
+    std::ostringstream sscode;
+    int count = getParamsCount(id);
+    sscode << exprs->gencode(method)
+        << "call " << id << "\n";
+    if(count>0)
+        sscode << "add esp, " << std::to_string(count*4) << "\n";
+    place = "ebp - " + std::to_string(method->getOffset());
+    sscode   << "mov dword[" + place + "], eax\n";
+    code = sscode.str();
+    return code;
+}
+
+gencode(ExprList){
+    std::ostringstream sscode;
+    
+    for(int i = 0; i < exprs.size(); i++){
+        sscode << exprs[i]->gencode(method)
+            << "push " << getPlace(exprs[i]) << "   ;" << exprs[i]->toString() <<"\n" ;
+    }
+    return sscode.str();
+}
+
 gencode(Add_Expr){
     std::ostringstream sscode;
     sscode << expr1->gencode(method)
         << expr2->gencode(method)
         << "mov eax, " + getPlace(expr1) + "\n"
-        << "add eax, " + getPlace(expr2) + "\n";
+        << "add eax, " + getPlace(expr2) + "    ;"<< toString()<<"\n";
     place = "ebp - " + std::to_string(method->getOffset());
     sscode   << "mov dword[" + place + "], eax\n";
     code = sscode.str();
@@ -355,7 +379,7 @@ gencode(Sub_Expr){
     sscode << expr1->gencode(method)
         << expr2->gencode(method)
         << "mov eax, " + getPlace(expr1) + "\n"
-        << "sub eax, " + getPlace(expr2) + "\n";
+        << "sub eax, " + getPlace(expr2) + "    ;"<< toString()<<"\n";
     place = "ebp - " + std::to_string(method->getOffset());
     sscode   << "mov dword[" + place + "], eax\n";
     code = sscode.str();
@@ -368,7 +392,7 @@ gencode(Mul_Expr){
         << expr2->gencode(method)
         << "mov eax, " + getPlace(expr1) + "\n"
         << "mov ecx, " + getPlace(expr2) + "\n"
-        << "imul ecx\n";
+        << "imul ecx " << "    ;"<< toString()<<"\n";
     place = "ebp - " + std::to_string(method->getOffset());
     sscode   << "mov dword[" + place + "], eax\n";
     code = sscode.str();
@@ -383,7 +407,7 @@ gencode(Div_Expr){
         << "mov eax, " + getPlace(expr1) + "\n"
         << "mov ecx, " + getPlace(expr2) + "\n"
         << "cdq\n"
-        << "idiv ecx\n";
+        << "idiv ecx " << "    ;"<< toString()<<"\n";
     place = "ebp - " + std::to_string(method->getOffset());
     sscode   << "mov dword[" + place + "], eax\n";
     code = sscode.str();
@@ -398,7 +422,7 @@ gencode(Mod_Expr){
         << "mov eax, " + getPlace(expr1) + "\n"
         << "mov ecx, " + getPlace(expr2) + "\n"
         << "cdq\n"
-        << "idiv ecx\n";
+        << "idiv ecx " << "    ;"<< toString()<<"\n";
     place = "ebp - " + std::to_string(method->getOffset());
     sscode   << "mov dword[" + place + "], edx\n";
     code = sscode.str();
@@ -435,7 +459,7 @@ gencode(EQ_Expr){
     sscode << expr1->gencode(method)
         << expr2->gencode(method)
         << "mov eax, " + getPlace(expr1) + "\n"
-        << "cmp eax, " + getPlace(expr2) + ";"<< toString()<<"\n"
+        << "cmp eax, " + getPlace(expr2) + "    ;"<< toString()<<"\n"
         << "je "<< lbl << "\n"
         << "mov eax, 1\n"
         << "jmp end_" << lbl << "\n"
@@ -454,7 +478,7 @@ gencode(NE_Expr){
     sscode << expr1->gencode(method)
         << expr2->gencode(method)
         << "mov eax, " + getPlace(expr1) + "\n"
-        << "cmp eax, " + getPlace(expr2) + "\n"
+        << "cmp eax, " + getPlace(expr2) + "    ;"<< toString()<<"\n"
         << "jne "<< lbl << "\n"
         << "mov eax, 1\n"
         << "jmp end_" << lbl << "\n"
@@ -473,7 +497,7 @@ gencode(GT_Expr){
     sscode << expr1->gencode(method)
         << expr2->gencode(method)
         << "mov eax, " + getPlace(expr1) + "\n"
-        << "cmp eax, " + getPlace(expr2) + "\n"
+        << "cmp eax, " + getPlace(expr2) + "    ;"<< toString()<<"\n"
         << "jg "<< lbl << "\n"
         << "mov eax, 1\n"
         << "jmp end_" << lbl << "\n"
@@ -492,7 +516,7 @@ gencode(GE_Expr){
     sscode << expr1->gencode(method)
         << expr2->gencode(method)
         << "mov eax, " + getPlace(expr1) + "\n"
-        << "cmp eax, " + getPlace(expr2) + "\n"
+        << "cmp eax, " + getPlace(expr2) + "    ;"<< toString()<<"\n"
         << "jge "<< lbl << "\n"
         << "mov eax, 1\n"
         << "jmp end_" << lbl << "\n"
@@ -511,7 +535,7 @@ gencode(LT_Expr){
     sscode << expr1->gencode(method)
         << expr2->gencode(method)
         << "mov eax, " + getPlace(expr1) + "\n"
-        << "cmp eax, " + getPlace(expr2) + "\n"
+        << "cmp eax, " + getPlace(expr2) + "    ;"<< toString()<<"\n"
         << "jl "<< lbl << "\n"
         << "mov eax, 1\n"
         << "jmp end_" << lbl << "\n"
@@ -530,7 +554,7 @@ gencode(LE_Expr){
     sscode << expr1->gencode(method)
         << expr2->gencode(method)
         << "mov eax, " + getPlace(expr1) + "\n"
-        << "cmp eax, " + getPlace(expr2) + "\n"
+        << "cmp eax, " + getPlace(expr2) + "    ;"<< toString()<<"\n"
         << "jle "<< lbl << "\n"
         << "mov eax, 1\n"
         << "jmp end_" << lbl << "\n"
@@ -548,7 +572,7 @@ gencode(SHR_Expr){
     sscode << expr1->gencode(method)
         << expr2->gencode(method)
         << "mov eax, " + getPlace(expr1) + "\n"
-        << "sar eax, " + getPlace(expr2) + "\n";
+        << "sar eax, " + getPlace(expr2) + "    ;"<< toString()<<"\n";
     place = "ebp - " + std::to_string(method->getOffset());
     sscode   << "mov dword[" + place + "], eax\n";
     code = sscode.str();
@@ -560,7 +584,7 @@ gencode(SHL_Expr){
     sscode << expr1->gencode(method)
         << expr2->gencode(method)
         << "mov eax, " + getPlace(expr1) + "\n"
-        << "sal eax, " + getPlace(expr2) + "\n";
+        << "sal eax, " + getPlace(expr2) + "    ;"<< toString()<<"\n";
     place = "ebp - " + std::to_string(method->getOffset());
     sscode   << "mov dword[" + place + "], eax\n";
     code = sscode.str();

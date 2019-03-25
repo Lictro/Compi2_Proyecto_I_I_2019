@@ -6,7 +6,7 @@
 #include <string.h>
 #include "decaf_tokens.h"
 
-static const size_t SIZE = 1024;
+static const size_t SIZE = 10000;
 #define ERROR -1
 #define EOFI 0
 

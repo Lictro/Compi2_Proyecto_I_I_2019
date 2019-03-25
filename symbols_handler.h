@@ -71,7 +71,7 @@ public:
 
     int getParamOffset(){
         paramoffset -= 4;
-        return paramoffset;
+        return -(paramoffset-4);
     }
 
     int getType(std::string name){
