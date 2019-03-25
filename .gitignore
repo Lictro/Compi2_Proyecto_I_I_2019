@@ -5,3 +5,6 @@ build/
 decaf_ast.h
 decaf_ast.cpp
 .vscode
+my_test/
+asm/
+*.json

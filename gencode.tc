@@ -45,6 +45,7 @@ gencode(MethodsField){
 
 gencode(Method){
     std::ostringstream sscode;
+    exit_methods.push("end_" + id);
     block->gencode(def);
     sscode << id << ":\n";
     if(def->offset>0){
@@ -59,6 +60,7 @@ gencode(Method){
     }
     sscode << "leave\n" << "ret\n";
     code = sscode.str();
+    exit_methods.pop();
     return code;
 }
 
@@ -216,8 +218,8 @@ gencode(AssignStatement){
 
 gencode(ForStatement){
     string_t lbl = "for_" + newlbl();
-    goback_point = lbl;
-    exit_point = "end_" + lbl;
+    goback_point.push(lbl);
+    exit_point.push("end_" + lbl);
     std::ostringstream sscode;
     sscode 
         << "; ForStatement\n"
@@ -232,6 +234,8 @@ gencode(ForStatement){
         << "jmp " << lbl << "\n"
         << "end_" << lbl << ":\n\n";
     code = sscode.str();
+    exit_point.pop();
+    goback_point.pop();
     return code;
 }
 
@@ -257,8 +261,8 @@ gencode(IfStatement){
 
 gencode(WhileStatement){
     string_t lbl = "while_" + newlbl();
-    goback_point = lbl;
-    exit_point = "end_" + lbl;
+    goback_point.push(lbl);
+    exit_point.push("end_" + lbl);
     std::ostringstream sscode;
     sscode 
         << "; WhileStatement\n"
@@ -271,6 +275,8 @@ gencode(WhileStatement){
         << "jmp " << lbl << "\n"
         << "end_" << lbl << ":\n\n";
     code = sscode.str();
+    exit_point.pop();
+    goback_point.pop();
     return code;
 }
 
@@ -281,6 +287,27 @@ gencode(AssigningsStatement){
     }
     code = sscode.str();
     return code;
+}
+
+gencode(BreakStatement){
+    string_t exit = exit_point.top();
+    return "jmp " + exit + "\n";
+}
+
+gencode(ContinueStatement){
+    string_t back = goback_point.top();
+    return "jmp " + back + "\n";
+}
+
+gencode(ReturnStatement){
+    string_t exit = exit_methods.top();
+    std::ostringstream sscode;
+    if(expr == nullptr){
+        return "mov eax, 3021998\njmp " + exit + "\n";
+    }
+    sscode << expr->gencode(method)
+        << "mov eax, " << getPlace(expr) << "\n";
+    return sscode.str();
 }
 
 gencode(Number){

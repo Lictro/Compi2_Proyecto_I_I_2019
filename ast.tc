@@ -72,8 +72,9 @@ string_t getNameParam(string_t name, int i){
 int count_str;
 std::unordered_map<std::string, std::string>strcst;
 int labels;
-string_t exit_point;
-string_t goback_point;
+std::stack<string_t> exit_point;
+std::stack<string_t> goback_point;
+std::stack<string_t> exit_methods;
 
 std::unordered_map<std::string, bool> temp = {
         {"eax", false},
