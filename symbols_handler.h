@@ -47,6 +47,7 @@ public:
     int return_type;
     std::vector<std::string> params;
     std::vector<Context*> ctxs;
+    Context* params_c;
     int local;
     int actual;
     int offset;
@@ -59,6 +60,8 @@ public:
         actual = 0;
         offset = 0;
         local = 1;
+        ctxs.push_back(new Context());
+        params_c = new Context();
     }
 
     int getOffset(){
@@ -80,14 +83,18 @@ public:
                 return type;
             }
         }
+        int i = params_c->getType(name);
+        if(i >= 1){
+            return i;
+        }
         auto symglobal = getTypeGlobal(name);
         return symglobal;
     }
 
     void addToParams(std::string str, int type){
         params.push_back(str);
-        local = 0;
-        ctxs[0]->addToCtx(str, type);
+        params_c->addToCtx(str,type);
+        paramplaces.insert(std::make_pair(str, "ebp + " + std::to_string(getParamOffset())));
     }
 
     std::string getPlace(std::string str){
@@ -110,18 +117,19 @@ public:
         return params.size();
     }
 
-    void addToCtx(std::string str, int type){
-        //std::cout<<"add en mi ctx "<<ctxs.size()<< actual<<std::endl;
-        ctxs[actual]->addToCtx(str, type);
-        save(str);
-        local=1;
+    void addToMethodCtx(std::string str, int type){
+        ctxs[0]->addToCtx(str, type);
+        places.insert(std::make_pair(str, "ebp - " + std::to_string(getOffset())));
     }
 
     void save(std::string str){
-        if(local)
+        std::cout<<"target "<<local<<std::endl;
+        if(local){
             places.insert(std::make_pair(str, "ebp - " + std::to_string(getOffset())));
-        else
+        }else{
+            std::cout<<"savinggg "<<str<<std::endl;
             paramplaces.insert(std::make_pair(str, "ebp + " + std::to_string(getParamOffset())));
+        }
     }
 
     void incrementar(){

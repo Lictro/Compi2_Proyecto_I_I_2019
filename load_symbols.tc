@@ -47,7 +47,7 @@ load_symbols(DeclareList){
 
 load_symbols(DeclareSimple){
     if(GOTOLOCAL == 1)
-        method->addToCtx(id, CURRENT_TYPE);
+        method->addToMethodCtx(id, CURRENT_TYPE);
     else{
         addSymbolToGlobal(id, CURRENT_TYPE);
         if(init == nullptr)
@@ -66,7 +66,7 @@ load_symbols(DeclareSimple){
 
 load_symbols(DeclareIdx){
     if(GOTOLOCAL == 1)
-        method->addToCtx(id, CURRENT_TYPE);
+        method->addToMethodCtx(id, CURRENT_TYPE);
     else{
         addSymbolToGlobal(id, CURRENT_TYPE);
         addPlaceToGlobal(std::to_string(size) + "-" + id, "0");
@@ -85,7 +85,7 @@ load_symbols(Method){
     type->load_symbols(def);
     addMethodToGlobal(id, CURRENT_TYPE);
     if(params != nullptr){
-        def->createNewCtx();
+        //def->createNewCtx();
         params->load_symbols(def);
     }
     if(block != nullptr){
