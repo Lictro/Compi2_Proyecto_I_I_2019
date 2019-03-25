@@ -76,6 +76,8 @@ int labels;
 std::stack<string_t> exit_point;
 std::stack<string_t> goback_point;
 std::stack<string_t> exit_methods;
+int write_scan = 0;
+int write_random;
 
 std::unordered_map<std::string, bool> temp = {
         {"eax", false},

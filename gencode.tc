@@ -200,6 +200,16 @@ gencode(MethodCallStatement){
         sscode << "push " << place << "\n"
             << "call printf\n"
             << "add esp, "<< params << "\n";
+    }else if(identifier == "SOR"){
+        sscode << "call scanf";
+    }else if(identifier == "RANDOM"){
+
+    }else{
+        int count = getParamsCount(identifier);
+        sscode << args->gencode(method)
+            << "call " << identifier << "\n";
+        if(count>0)
+            sscode << "add esp, " << std::to_string(count*4) << "\n";
     }
     code = sscode.str();
     return code;
@@ -341,13 +351,27 @@ gencode(LValueIdx){
 
 gencode(MethodCallExpr){
     std::ostringstream sscode;
-    int count = getParamsCount(id);
-    sscode << exprs->gencode(method)
-        << "call " << id << "\n";
-    if(count>0)
-        sscode << "add esp, " << std::to_string(count*4) << "\n";
-    place = "ebp - " + std::to_string(method->getOffset());
-    sscode   << "mov dword[" + place + "], eax\n";
+    if(id == "SOR"){
+        string_t off = std::to_string(method->getOffset());
+        place = "ebp - " + off;
+        sscode
+            << "mov eax, ebp\n"
+            << "sub eax, " << off << "\n"
+            << "push eax\n"
+            << "push " << save_str("\"%d\"") << "\n"
+            << "call scanf\n"
+            << "add esp, 8\n";
+    }else if(id == "RANDOM"){
+
+    }else{
+        int count = getParamsCount(id);
+        sscode << exprs->gencode(method)
+            << "call " << id << "\n";
+        if(count>0)
+            sscode << "add esp, " << std::to_string(count*4) << "\n";
+        place = "ebp - " + std::to_string(method->getOffset());
+        sscode   << "mov dword[" + place + "], eax\n";
+    }
     code = sscode.str();
     return code;
 }
