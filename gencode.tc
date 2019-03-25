@@ -272,14 +272,14 @@ gencode(IfStatement){
         << "; IfStatement\n"
         << cond->gencode(method)
         << "mov eax, " << getPlace(cond)<<" ;if condition\n"
-        << "cmp eax, 1\n";
-    sscode
-        << "jge else_" << lbl <<"\n"
-        << true_blk->gencode(method)
-        << "jmp end_" << lbl << "\n"
-        << "else_" << lbl <<":\n";
+        << "cmp eax, 1\n"
+        << "jne true_" << lbl <<"\n";
     if(close_blk != nullptr)
         sscode << close_blk->gencode(method);
+    sscode
+        << "jmp end_" << lbl << "\n"
+        << "true_"<<lbl<<":\n"
+        << true_blk->gencode(method);
     sscode << "end_" << lbl << ":\n";
     code = sscode.str();
     return code;
