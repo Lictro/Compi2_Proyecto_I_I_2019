@@ -45,6 +45,7 @@ gencode(MethodsField){
 }
 
 gencode(Method){
+    //std::cout<<"Method"<<std::endl;
     std::ostringstream sscode;
     exit_methods.push("end_" + id);
     block->gencode(def);
@@ -66,6 +67,7 @@ gencode(Method){
 }
 
 gencode(BlockStatement){
+    //std::cout<<"BlockStatement"<<std::endl;
     std::ostringstream sscode;
     for(int i = 0; i < stmts.size(); i++){
         sscode << stmts[i]->gencode(method);
@@ -75,10 +77,11 @@ gencode(BlockStatement){
 }
 
 gencode(MethodCallStatement){
+    //std::cout<<"MethodCallStatement "<< identifier <<std::endl;
     std::ostringstream sscode;
     int params = 0;
     if(identifier == "SOPLN"){
-        //std::cout<<"estas en sop"<<std::endl;
+        ////std::cout<<"estas en sop"<<std::endl;
         string_t mask = "\"";
         string_t place;
         auto argu = dynamic_cast<ArgumentsList*>(args)->args;
@@ -141,7 +144,7 @@ gencode(MethodCallStatement){
             << "call printf\n"
             << "add esp, "<< params << "\n";
     }else if(identifier == "SOP"){
-        //std::cout<<"estas en sop"<<std::endl;
+        ////std::cout<<"estas en sop"<<std::endl;
         string_t mask = "\"";
         string_t place;
         auto argu = dynamic_cast<ArgumentsList*>(args)->args;
@@ -206,28 +209,39 @@ gencode(MethodCallStatement){
     }else if(identifier == "RANDOM"){
         sscode << "call rand\n";
     }else{
+        //std::cout<<"pass 1"<<std::endl;
         int count = getParamsCount(identifier);
-        sscode << args->gencode(method)
-            << "call " << identifier << "\n";
-        if(count>0)
+        //std::cout<<"pass 2"<<std::endl;
+        if(args != nullptr){
+            sscode << args->gencode(method);
+        }
+            sscode<< "call " << identifier << "\n";
+        //std::cout<<"pass 3"<<std::endl;
+        if(count>0){
             sscode << "add esp, " << std::to_string(count*4) << "\n";
+            ////std::cout<<"pass 4"<<std::endl;
+        }
+        ////std::cout<<"pass 5"<<std::endl;
     }
     code = sscode.str();
     return code;
 }
 
 gencode(AssignStatement){
+    //std::cout<<"AssignStatement"<<std::endl;
     std::ostringstream sscode;
     lhs->gencode(method);
     sscode << rhs->gencode(method)
         << "mov eax, " + getPlace(rhs) + "\n"
         << lhs->code
-        << "mov dword[" + lhs->place + "], eax\n";
+        << "mov dword[" + lhs->place + "], eax      ;"
+        << toString()<<"\n";
     code = sscode.str();
     return code;
 }
 
 gencode(ForStatement){
+    //std::cout<<"ForStatement"<<std::endl;
     string_t lbl = "for_" + newlbl();
     goback_point.push(lbl);
     exit_point.push("end_" + lbl);
@@ -251,6 +265,7 @@ gencode(ForStatement){
 }
 
 gencode(IfStatement){
+    //std::cout<<"IfStatement"<<std::endl;
     string_t lbl = "if_" + newlbl();
     std::ostringstream sscode;
     sscode
@@ -271,6 +286,7 @@ gencode(IfStatement){
 }
 
 gencode(WhileStatement){
+    //std::cout<<"WhileStatement"<<std::endl;
     string_t lbl = "while_" + newlbl();
     goback_point.push(lbl);
     exit_point.push("end_" + lbl);
@@ -292,6 +308,7 @@ gencode(WhileStatement){
 }
 
 gencode(AssigningsStatement){
+    //std::cout<<"AssigningsStatement"<<std::endl;
     std::ostringstream sscode;
     for(int i = 0; i < assigns.size(); i++){
         sscode<< assigns[i]->gencode(method);
@@ -301,16 +318,19 @@ gencode(AssigningsStatement){
 }
 
 gencode(BreakStatement){
+    //std::cout<<"BreakStatement"<<std::endl;
     string_t exit = exit_point.top();
     return "jmp " + exit + "\n";
 }
 
 gencode(ContinueStatement){
+    //std::cout<<"ContinueStatement"<<std::endl;
     string_t back = goback_point.top();
     return "jmp " + back + "\n";
 }
 
 gencode(ReturnStatement){
+    //std::cout<<"ReturnStatement"<<std::endl;
     string_t exit = exit_methods.top();
     std::ostringstream sscode;
     if(expr == nullptr){
@@ -323,21 +343,25 @@ gencode(ReturnStatement){
 }
 
 gencode(Number){
-  place = std::to_string(number);
-  return "";
+    //std::cout<<"Number"<<std::endl;
+    place = std::to_string(number);
+    return "";
 }
 
 gencode(BoolConst){
-  place = std::to_string(tOf);
-  return "";
+    //std::cout<<"BoolConst"<<std::endl;
+    place = std::to_string(tOf);
+    return "";
 }
 
 gencode(LValueSim){
-  place = method->getPlace(id);
-  return "";
+    //std::cout<<"LValueSim"<<std::endl;
+    place = method->getPlace(id);
+    return "";
 }
 
 gencode(LValueIdx){
+    //std::cout<<"LValueIdx"<<std::endl;
     std::ostringstream sscode;
     idx->gencode(method);
     sscode << idx->code
@@ -351,6 +375,7 @@ gencode(LValueIdx){
 }
 
 gencode(MethodCallExpr){
+    //std::cout<<"MethodCallExpr"<<std::endl;
     std::ostringstream sscode;
     if(id == "SOR"){
         string_t off = std::to_string(method->getOffset());
@@ -388,6 +413,7 @@ gencode(MethodCallExpr){
 }
 
 gencode(ExprList){
+    //std::cout<<"ExprList"<<std::endl;
     std::ostringstream sscode;
     
     for(int i = 0; i < exprs.size(); i++){
@@ -398,6 +424,7 @@ gencode(ExprList){
 }
 
 gencode(Add_Expr){
+    //std::cout<<"Add_Expr"<<std::endl;
     std::ostringstream sscode;
     sscode << expr1->gencode(method)
         << expr2->gencode(method)
@@ -410,6 +437,7 @@ gencode(Add_Expr){
 }
 
 gencode(Sub_Expr){
+    //std::cout<<"Sub_Expr"<<std::endl;
     std::ostringstream sscode;
     sscode << expr1->gencode(method)
         << expr2->gencode(method)
@@ -422,6 +450,7 @@ gencode(Sub_Expr){
 }
 
 gencode(Mul_Expr){
+    //std::cout<<"Mul_Expr"<<std::endl;
     std::ostringstream sscode;
     sscode << expr1->gencode(method)
         << expr2->gencode(method)
@@ -435,6 +464,7 @@ gencode(Mul_Expr){
 }
 
 gencode(Div_Expr){
+    //std::cout<<"Div_Expr"<<std::endl;
     std::ostringstream sscode;
     sscode << expr1->gencode(method)
         << expr2->gencode(method)
@@ -450,6 +480,7 @@ gencode(Div_Expr){
 }
 
 gencode(Mod_Expr){
+    //std::cout<<"Mod_Expr"<<std::endl;
     std::ostringstream sscode;
     sscode << expr1->gencode(method)
         << expr2->gencode(method)

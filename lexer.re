@@ -47,6 +47,7 @@ bool input_t::fill(size_t need){
 
 int lex(input_t & in)
 {
+    std::string hello = "";
     char *YYMARKER;
     while(1){
         text="";
@@ -71,7 +72,7 @@ int lex(input_t & in)
             dec = [0-9]*;
             hex = '0x' [0-9a-fA-F]+;
             id =[_|a-zA-Z][_|a-zA-Z|0-9]*;
-            dstr = "\"" [^"]* "\"";
+            dstr = "\"" [^("|"\"")]* "\"";
             char_const = "'" [^'] "'";*/
 
         if(state == 0){
@@ -101,9 +102,9 @@ int lex(input_t & in)
 
         str_literal:
         /*!re2c
-            * { continue; }
-            "\n" { lineno++; continue; }
-            cblock { state = 0; continue; }
+            * { hello.push_back(yych);continue; }
+            "\"" { hello.push_back(yych);state = 0; text=hello; return STRLIT; }
+            "\\\"" { hello.push_back('\\'); hello.push_back('"'); ;continue; }
             end { text = "error"; return ERROR; }
         */
 
@@ -111,8 +112,7 @@ int lex(input_t & in)
         /*!re2c
             *   { std::string t(in.tok,in.cur-in.tok); std::cout<<"ffffff"<<std::endl; text = "error"; return ERROR; }
             end { text = "eof"; return EOFI; }
-            dstr { std::string t(in.tok,in.cur-in.tok);
-                text=t; return STRLIT; }
+            "\"" { hello.push_back(yych); state = 3; continue; }
             wsp { continue; }
             eol { lineno++; continue; }
             line { state = 1; continue; }
