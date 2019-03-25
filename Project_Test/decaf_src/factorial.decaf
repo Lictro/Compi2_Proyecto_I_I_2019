@@ -1,0 +1,29 @@
+class Factorial
+{
+	void main()
+	{
+		int x;
+
+		x = factorial(6);
+
+		System.out.print("Factorial de \"5\" = ");
+		x = factorial(5);
+		System.out.println(x);
+		System.out.print("Factorial de \"6\" = ");
+		x = factorial(6);
+		System.out.println(x);
+		System.out.print("Factorial de \"7\" = ");
+		x = factorial(7);
+		System.out.println(x);
+	}
+
+	// Funcion que calcula el factorial
+	int factorial(int n)
+	{
+		if (n == 0) {
+			return (1);
+		} else {
+			return n * factorial(n-1);
+		}
+	}
+}

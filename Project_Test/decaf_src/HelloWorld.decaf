@@ -1,0 +1,6 @@
+class HelloWord {
+    void main() {
+        System.out.print("Hello World!\n");
+        System.out.println("Hola Mundo");
+    }
+}

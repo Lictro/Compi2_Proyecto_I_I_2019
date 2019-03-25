@@ -1,0 +1,16 @@
+/*
+ * ForTest.decaf
+ * Sample program for testing 'For' statement
+ */
+
+class ForTest {
+    void main() {
+        int i;
+        
+        for (i = 0; i <= 10; i = i + 1) {
+            System.out.print("i = ");
+            System.out.println(i);
+        }
+        System.out.println("End of loop");
+    }
+}
