@@ -116,13 +116,35 @@ string_t newlbl(){
     return "label"+std::to_string(labels);
 }
 
+string_t findAndReplaceAll(std::string data, std::string toSearch, std::string replaceStr)
+{
+	// Get the first occurrence
+	size_t pos = data.find(toSearch);
+ 
+	// Repeat till end is reached
+	while( pos != std::string::npos)
+	{
+		// Replace this occurrence of Sub String
+		data.replace(pos, toSearch.size(), replaceStr);
+		// Get the next occurrence from the current position
+		pos =data.find(toSearch, pos + replaceStr.size());
+	}
+
+    return data;
+}
+ 
+
 string_t getTextSection(){
     std::ostringstream code;
     for( const auto& sm_pair : strcst ){
-        code << sm_pair.second << " db "<<sm_pair.first << ", 0\n";
+        string_t stri = sm_pair.first;
+        stri = findAndReplaceAll(stri, "\n", "\",10,13\"");
+        code << sm_pair.second << " db "<< stri << ", 0\n";
     }
     return code.str();
 }
+
+
 
 string_t getFreeTemp(){
     if(!temp["eax"]){

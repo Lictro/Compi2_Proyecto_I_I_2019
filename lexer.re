@@ -102,9 +102,12 @@ int lex(input_t & in)
 
         str_literal:
         /*!re2c
-            * { hello.push_back(yych);continue; }
-            "\"" { hello.push_back(yych);state = 0; text=hello; return STRLIT; }
-            "\\\"" { hello.push_back('\\'); hello.push_back('"'); ;continue; }
+            * { hello.push_back(yych); continue; }
+            "\"" { state = 0; text=hello; return STRLIT; }
+            "\\\"" { hello.push_back('\\'); hello.push_back('"'); continue; }
+            "\\n" { hello.push_back('\\'); hello.push_back('n'); continue; }
+            "\\r" { hello.push_back('\\'); hello.push_back('r'); continue; }
+            "\\t" { hello.push_back('\\'); hello.push_back('t'); continue; }
             end { text = "error"; return ERROR; }
         */
 
@@ -112,7 +115,7 @@ int lex(input_t & in)
         /*!re2c
             *   { std::string t(in.tok,in.cur-in.tok); std::cout<<"ffffff"<<std::endl; text = "error"; return ERROR; }
             end { text = "eof"; return EOFI; }
-            "\"" { hello.push_back(yych); state = 3; continue; }
+            "\"" { state = 3; continue; }
             wsp { continue; }
             eol { lineno++; continue; }
             line { state = 1; continue; }
