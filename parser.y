@@ -143,7 +143,7 @@ expr(A) ::= expr(B) SUB expr(C). {A= new Sub_Expr(B, C, "-"); A->setLinenum(line
 expr(A) ::= expr(B) MUL expr(C). {A= new Mul_Expr(B, C, "*"); A->setLinenum(lineno);}
 expr(A) ::= expr(B) DIV expr(C). {A= new Div_Expr(B, C, "/"); A->setLinenum(lineno);}
 expr(A) ::= NOT expr(B). {A = new Not_Expr(B); A->setLinenum(lineno);}
-expr(A) ::= NEG expr(B). {A = new Neg_Expr(B); A->setLinenum(lineno);}
+expr(A) ::= SUB expr(B). {A = new Neg_Expr(B); A->setLinenum(lineno);}
 expr(A) ::= constant(B). {A = dynamic_cast<Expr*>(B); A->setLinenum(lineno);}
 expr(A) ::= lvalue(B). {A = dynamic_cast<Expr*>(B); A->setLinenum(lineno);}
 expr(A) ::= CHAR_CONST(B).{A = dynamic_cast<Expr*>(B); A->setLinenum(lineno);}

@@ -15,6 +15,8 @@ typedef std::vector<ASTNode*> astn_list;
 typedef std::string string_t; 
 
 bool getCountErr();
+
+string_t conca(string_t str, string_t del, string_t cad);
 %}
 
 %{
@@ -116,29 +118,26 @@ string_t newlbl(){
     return "label"+std::to_string(labels);
 }
 
-string_t findAndReplaceAll(std::string data, std::string toSearch, std::string replaceStr)
-{
-	// Get the first occurrence
-	size_t pos = data.find(toSearch);
- 
-	// Repeat till end is reached
-	while( pos != std::string::npos)
-	{
-		// Replace this occurrence of Sub String
-		data.replace(pos, toSearch.size(), replaceStr);
-		// Get the next occurrence from the current position
-		pos =data.find(toSearch, pos + replaceStr.size());
-	}
-
-    return data;
+string_t conca(string_t str, string_t del, string_t cad){
+    auto tokens = split(str, del);
+    if(tokens.size() == 1){
+        return str;
+    }
+    string_t text = tokens[0];
+    for(int i = 1; i < tokens.size(); i++){
+        text += cad + tokens[i];
+    }
+    return text;
 }
- 
 
 string_t getTextSection(){
     std::ostringstream code;
     for( const auto& sm_pair : strcst ){
-        string_t stri = sm_pair.first;
-        stri = findAndReplaceAll(stri, "\n", "\",10,13\"");
+        string_t stri = conca(sm_pair.first,"\\n", "\",10,\"");
+        stri = conca(stri,"\\t", "\",9,\"");
+        stri = conca(stri,"\\r", "\",13,\"");
+        stri = conca(stri,"\\\"", "\",34,\"");
+        stri = conca(stri,"\\\\", "\",93,\"");
         code << sm_pair.second << " db "<< stri << ", 0\n";
     }
     return code.str();

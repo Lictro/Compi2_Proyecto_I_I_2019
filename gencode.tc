@@ -106,7 +106,7 @@ gencode(MethodCallStatement){
             params+=4;
                 if(argu[i]->isA(StrLiteral_kind)){
                     sscode << "push ";
-                    sscode << save_str(argu[i]->toString());
+                    sscode << save_str("\""+argu[i]->toString()+"\"");
                 }else{
                     auto expr = dynamic_cast<Expr*>(argu[i]);
                     int type = expr->getTypeExpr(method);
@@ -167,7 +167,7 @@ gencode(MethodCallStatement){
             params+=4;
             if(argu[i]->isA(StrLiteral_kind)){
                 sscode << "push ";
-                sscode << save_str(argu[i]->toString());
+                sscode << save_str("\""+argu[i]->toString()+"\"");
             }else{
                 auto expr = dynamic_cast<Expr*>(argu[i]);
                 int type = expr->getTypeExpr(method);
@@ -651,6 +651,35 @@ gencode(SHL_Expr){
         << expr2->gencode(method)
         << "mov eax, " + getPlace(expr1) + "\n"
         << "sal eax, " + getPlace(expr2) + "    ;"<< toString()<<"\n";
+    place = "ebp - " + std::to_string(method->getOffset());
+    sscode   << "mov dword[" + place + "], eax\n";
+    code = sscode.str();
+    return code;
+}
+
+gencode(Neg_Expr){
+    std::ostringstream sscode;
+    sscode << expr->gencode(method)
+        << "mov eax, " << getPlace(expr) << "\n"
+        << "neg eax\n";
+    place = "ebp - " + std::to_string(method->getOffset());
+    sscode   << "mov dword[" + place + "], eax\n";
+    code = sscode.str();
+    return code;
+}
+
+gencode(Not_Expr){
+    string_t lbl = newlbl();
+    std::ostringstream sscode;
+    sscode << expr->gencode(method)
+        << "mov eax, " << getPlace(expr) << "\n"
+        << "cmp eax, 0\n"
+        << "je " << lbl << "\n"
+        << "mov eax, 1\n"
+        << "jmp end_" << lbl <<"\n"
+        << lbl << ":\n"
+        << "mov eax, 0\n"
+        << "end_" << lbl << ":\n"; 
     place = "ebp - " + std::to_string(method->getOffset());
     sscode   << "mov dword[" + place + "], eax\n";
     code = sscode.str();
