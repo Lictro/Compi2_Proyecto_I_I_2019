@@ -28,6 +28,7 @@ gencode(Program){
         << getGlobal()
         << getTextSection()<<"\n"
         << "section .text\n\n"
+        << "section .data\n\n"
         << method_field->code
         ;
     code = sscode.str();
@@ -59,8 +60,9 @@ gencode(Method){
     sscode << "\nend_"<<id<<":\n";
     if(def->offset>0){
         sscode << "add esp, " << def->offset<<"\n";
+        sscode << "leave\n";
     }
-    sscode << "leave\n" << "ret\n";
+    sscode << "ret\n";
     code = sscode.str();
     exit_methods.pop();
     return code;
@@ -272,7 +274,7 @@ gencode(IfStatement){
         << "; IfStatement\n"
         << cond->gencode(method)
         << "mov eax, " << getPlace(cond)<<" ;if condition\n"
-        << "cmp eax, 1\n"
+        << "cmp eax, 0\n"
         << "jne true_" << lbl <<"\n";
     if(close_blk != nullptr)
         sscode << close_blk->gencode(method);
@@ -521,20 +523,16 @@ gencode(Or_Expr){
 
 gencode(EQ_Expr){
     string_t lbl = newlbl();
-    std::ostringstream sscode;
-    sscode << expr1->gencode(method)
-        << expr2->gencode(method)
-        << "mov eax, " + getPlace(expr1) + "\n"
-        << "cmp eax, " + getPlace(expr2) + "    ;"<< toString()<<"\n"
-        << "je "<< lbl << "\n"
-        << "mov eax, 1\n"
-        << "jmp end_" << lbl << "\n"
-        << lbl << ":\n"
-        << "mov eax, 0\n"
-        << "end_" << lbl <<":\n";
+    code = expr1->gencode(method);
+    code += expr2->gencode(method);
+    code += "mov eax, " + getPlace(expr1) + "\n";
+    code += "cmp eax, " + getPlace(expr2) + "\n";
+    code += "je " + lbl +"\n";
+    code += "mov eax, 0\njmp end_" + lbl + "\n";
+    code += lbl + ":\nmov eax, 1\n";
+    code += "end_" +  lbl+ ":\n";
     place = "ebp - " + std::to_string(method->getOffset());
-    sscode   << "mov dword[" + place + "], eax\n";
-    code = sscode.str();
+    code += "mov dword[" + place + "], eax\n";
     return code;
 }
 
