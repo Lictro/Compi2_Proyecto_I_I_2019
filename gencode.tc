@@ -50,7 +50,7 @@ gencode(Method){
     std::ostringstream sscode;
     exit_methods.push("end_" + id);
     block->gencode(def);
-    sscode << id << ":\n";
+    sscode << def->header() << "\n" << id << ":\n";
     if(def->offset>0){
         sscode << "push ebp\n"
             << "mov ebp, esp\n"
@@ -255,7 +255,7 @@ gencode(ForStatement){
         << cond->gencode(method)
         << "mov eax, " << getPlace(cond)<<" ;for condition\n"
         << "cmp eax, 1\n"
-        << "jge end_" << lbl <<"\n"
+        << "jl end_" << lbl <<"\n"
         << block->gencode(method)
         << increments->gencode(method)
         << "jmp " << lbl << "\n"
@@ -269,21 +269,24 @@ gencode(ForStatement){
 gencode(IfStatement){
     //std::cout<<"IfStatement"<<std::endl;
     string_t lbl = "if_" + newlbl();
-    std::ostringstream sscode;
-    sscode
-        << "; IfStatement\n"
-        << cond->gencode(method)
-        << "mov eax, " << getPlace(cond)<<" ;if condition\n"
-        << "cmp eax, 0\n"
-        << "jne true_" << lbl <<"\n";
-    if(close_blk != nullptr)
-        sscode << close_blk->gencode(method);
-    sscode
-        << "jmp end_" << lbl << "\n"
-        << "true_"<<lbl<<":\n"
-        << true_blk->gencode(method);
-    sscode << "end_" << lbl << ":\n";
-    code = sscode.str();
+    cond->gencode(method);
+    string_t tr, fal;
+    if(true_blk != nullptr){
+        tr = true_blk->gencode(method);
+    }
+    if(close_blk != nullptr){
+        fal = close_blk->gencode(method);
+    }
+    code = lbl + ":\n";
+    code += cond->code;
+    code += "mov eax, " + getPlace(cond) + "\n";
+    code += "cmp eax, 1\n";
+    code += "jne else_" + lbl + "\n";
+    code += tr;
+    code += "jmp end_" + lbl + "\n";
+    code += "else_" + lbl + ":\n";
+    code += fal;
+    code += "end_" + lbl + ":\n";
     return code;
 }
 
@@ -299,7 +302,7 @@ gencode(WhileStatement){
         << cond->gencode(method)
         << "mov eax, " << getPlace(cond)<<" ;while condition\n"
         << "cmp eax, 1\n"
-        << "jge end_" << lbl <<"\n"
+        << "jl end_" << lbl <<"\n"
         << block->gencode(method)
         << "jmp " << lbl << "\n"
         << "end_" << lbl << ":\n\n";
@@ -418,7 +421,7 @@ gencode(ExprList){
     //std::cout<<"ExprList"<<std::endl;
     std::ostringstream sscode;
     
-    for(int i = 0; i < exprs.size(); i++){
+    for(int i = exprs.size()-1; 0 <= i; i--){
         sscode << exprs[i]->gencode(method)
             << "push " << getPlace(exprs[i]) << "   ;" << exprs[i]->toString() <<"\n" ;
     }

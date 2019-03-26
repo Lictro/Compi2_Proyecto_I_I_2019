@@ -59,6 +59,7 @@ public:
         this->name = name;
         actual = 0;
         offset = 0;
+        paramoffset = 4;
         local = 1;
         ctxs.push_back(new Context());
         params_c = new Context();
@@ -70,8 +71,16 @@ public:
     }
 
     int getParamOffset(){
-        paramoffset -= 4;
-        return -(paramoffset-4);
+        paramoffset += 4;
+        return (paramoffset);
+    }
+
+    std::string header(){
+        std::ostringstream code;
+        for( const auto& sm_pair : paramplaces ){
+            code << "; "<< sm_pair.first << " ----> " << sm_pair.second << "\n";
+        }
+        return code.str();
     }
 
     int getType(std::string name){

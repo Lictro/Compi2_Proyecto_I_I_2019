@@ -6,7 +6,7 @@
 #include "doctest.h"
 
 std::string decafBin = "./decaf";
-std::string decafSrcDir = "../build/";
+std::string decafSrcDir = "/home/ideras/classes/Compilers/source_code/decaf_p12019_samples/";
 
 #include "output.cpp"
 
