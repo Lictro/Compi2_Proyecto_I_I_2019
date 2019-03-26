@@ -527,9 +527,10 @@ gencode(Or_Expr){
 gencode(EQ_Expr){
     string_t lbl = newlbl();
     code = expr1->gencode(method);
+    code += "mov ebx, " + getPlace(expr1) + "\n";
     code += expr2->gencode(method);
-    code += "mov eax, " + getPlace(expr1) + "\n";
-    code += "cmp eax, " + getPlace(expr2) + "\n";
+    code += "mov eax, " + getPlace(expr2) + "\n";
+    code += "cmp ebx, eax\n";
     code += "je " + lbl +"\n";
     code += "mov eax, 0\njmp end_" + lbl + "\n";
     code += lbl + ":\nmov eax, 1\n";
@@ -542,9 +543,10 @@ gencode(EQ_Expr){
 gencode(NE_Expr){
     string_t lbl = newlbl();
     code = expr1->gencode(method);
+    code += "mov ebx, " + getPlace(expr1) + "\n";
     code += expr2->gencode(method);
-    code += "mov eax, " + getPlace(expr1) + "\n";
-    code += "cmp eax, " + getPlace(expr2) + "\n";
+    code += "mov eax, " + getPlace(expr2) + "\n";
+    code += "cmp ebx, eax\n";
     code += "jne " + lbl +"\n";
     code += "mov eax, 0\njmp end_" + lbl + "\n";
     code += lbl + ":\nmov eax, 1\n";
@@ -557,9 +559,10 @@ gencode(NE_Expr){
 gencode(GT_Expr){
     string_t lbl = newlbl();
     code = expr1->gencode(method);
+    code += "mov ebx, " + getPlace(expr1) + "\n";
     code += expr2->gencode(method);
-    code += "mov eax, " + getPlace(expr1) + "\n";
-    code += "cmp eax, " + getPlace(expr2) + "\n";
+    code += "mov eax, " + getPlace(expr2) + "\n";
+    code += "cmp ebx, eax\n";
     code += "jg " + lbl +"\n";
     code += "mov eax, 0\njmp end_" + lbl + "\n";
     code += lbl + ":\nmov eax, 1\n";
@@ -572,9 +575,10 @@ gencode(GT_Expr){
 gencode(GE_Expr){
     string_t lbl = newlbl();
     code = expr1->gencode(method);
+    code += "mov ebx, " + getPlace(expr1) + "\n";
     code += expr2->gencode(method);
-    code += "mov eax, " + getPlace(expr1) + "\n";
-    code += "cmp eax, " + getPlace(expr2) + "\n";
+    code += "mov eax, " + getPlace(expr2) + "\n";
+    code += "cmp ebx, eax\n";
     code += "jge " + lbl +"\n";
     code += "mov eax, 0\njmp end_" + lbl + "\n";
     code += lbl + ":\nmov eax, 1\n";
@@ -587,9 +591,10 @@ gencode(GE_Expr){
 gencode(LT_Expr){
     string_t lbl = newlbl();
     code = expr1->gencode(method);
+    code += "mov ebx, " + getPlace(expr1) + "\n";
     code += expr2->gencode(method);
-    code += "mov eax, " + getPlace(expr1) + "\n";
-    code += "cmp eax, " + getPlace(expr2) + "\n";
+    code += "mov eax, " + getPlace(expr2) + "\n";
+    code += "cmp ebx, eax\n";
     code += "jl " + lbl +"\n";
     code += "mov eax, 0\njmp end_" + lbl + "\n";
     code += lbl + ":\nmov eax, 1\n";
@@ -602,9 +607,10 @@ gencode(LT_Expr){
 gencode(LE_Expr){
     string_t lbl = newlbl();
     code = expr1->gencode(method);
+    code += "mov ebx, " + getPlace(expr1) + "\n";
     code += expr2->gencode(method);
-    code += "mov eax, " + getPlace(expr1) + "\n";
-    code += "cmp eax, " + getPlace(expr2) + "\n";
+    code += "mov eax, " + getPlace(expr2) + "\n";
+    code += "cmp ebx, eax\n";
     code += "jle " + lbl +"\n";
     code += "mov eax, 0\njmp end_" + lbl + "\n";
     code += lbl + ":\nmov eax, 1\n";
